@@ -1,2 +1,2 @@
 # XLFunctions.jl
-Ports of popular Excel functions.
+Ports of popular XL functions.
