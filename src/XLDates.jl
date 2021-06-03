@@ -1,3 +1,4 @@
+using ReTest
 using Dates
 import Base: show
 
@@ -5,11 +6,15 @@ struct XLDate{T<:Real}
    val::T
 end
 
-show(io::IO, xldate::XLDate) = show(io, "XLDate($(xldatetodate(xldate)))")
+@testset "show dates" begin
+   @test repr(XLDate(32937.00)) == "XLDate(1990-03-05T00:00:00)"
+end
+show(io::IO, xldate::XLDate) = print(io, "XLDate($(xldatetodate(xldate)))")
 
 function xldatetodate(xldate::Integer)
    Dates.DateTime(1899, 12, 30) + Dates.Day(xldate)
 end
+
 function xldatetodate(xldate::Real)
    t,d = modf(xldate)
    return Dates.DateTime(1899, 12, 30) + Dates.Day(d) + Dates.Millisecond((floor(t * 86400000)))
@@ -35,25 +40,25 @@ function toxldate(date::DateTime)
    return XLDate(datetime)
 end
 
-Base.convert(d::Type{Dates.DateTime},n::XLDate) = xldatetodate(n)
-Base.convert(d::Type{Dates.Date},n::XLDate) = convert(Date,xldatetodate(n))
-Base.convert(d::Type{T},n::XLDate) where T<: Real = convert(d,n.val)
-Base.convert(d::Type{XLDate},n::Dates.DateTime) = toxldate(n)
-Base.convert(d::Type{XLDate},n::Dates.Date) = toxldate(n)
+Base.convert(d::Type{Dates.DateTime}, n::XLDate) = xldatetodate(n)
+Base.convert(d::Type{Dates.Date}, n::XLDate) = convert(Date,xldatetodate(n))
+Base.convert(d::Type{T}, n::XLDate) where T<: Real = convert(d,n.val)
+Base.convert(d::Type{XLDate}, n::Dates.DateTime) = toxldate(n)
+Base.convert(d::Type{XLDate}, n::Dates.Date) = toxldate(n)
 
 
+#=
 function text(xldate::XLDate, format_text::String)
+   # m mm
+   # mmm - short form of the month name, for example
+   # mmmm - long form of the month name, for example
+   # mmmmm - month as the first letter, for example M (stands for March and May)
+
+   # d  dd
+   # ddd - abbreviated day of the week, for example
+   # dddd - full name of the day of the week, for example
+
+   # h hh m mm s ss AM/PM
+   # Minutes if you put "m" immediately after h codes (hours) or immediately before s codes (seconds)
 end
-
-
-# m mm
-# mmm - short form of the month name, for example
-# mmmm - long form of the month name, for example
-# mmmmm - month as the first letter, for example M (stands for March and May)
-
-# d  dd
-# ddd - abbreviated day of the week, for example
-# dddd - full name of the day of the week, for example
-
-# h hh m mm s ss AM/PM
-# Minutes if you put "m" immediately after h codes (hours) or immediately before s codes (seconds)
+=#
