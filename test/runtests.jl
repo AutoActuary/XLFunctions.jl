@@ -1,2 +1,2 @@
 using XLFunctions
-XLFunctions.run_tests()
+XLFunctions.runtests()

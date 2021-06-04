@@ -1,64 +1,78 @@
 using ReTest
-using Dates
-import Base: show
+using Dates: DateTime
+import Dates
+import Base: show, +, *, -, /, ^
+
+@testset "XLDate" begin
+
+   # Does it display like a number?
+   @test repr(XLDate(32937.0)) == "32937"
+   @test repr(XLDate(32937)) == "32937"
+
+   # Does it retain it's convertion to and from DateTime?
+   nowdate = Dates.now()
+   @test XLDate(DateTime(XLDate(DateTime(XLDate(nowdate))))).val ≈ XLDate(nowdate).val
+   @test XLDate(DateTime(XLDate(DateTime(XLDate(nowdate).val)).val)).val ≈ XLDate(nowdate).val
+
+   # Does it handle basic arithmitic?
+   @test 5 + XLDate(44350.88) == 44355.88
+   @test XLDate(44350.88) + 5 == 44355.88
+
+end
+
 
 struct XLDate{T<:Real}
    val::T
+   XLDate(number::T) where T<:Real = floor(number) == number ? new{Int}(Int(number)) : new{typeof(number)}(number)
 end
 
-@testset "show dates" begin
-   @test repr(XLDate(32937.00)) == "XLDate(1990-03-05T00:00:00)"
-end
-show(io::IO, xldate::XLDate) = print(io, "XLDate($(xldatetodate(xldate)))")
 
-function xldatetodate(xldate::Integer)
-   Dates.DateTime(1899, 12, 30) + Dates.Day(xldate)
+XLDate(date::DateTime) = begin
+   number = Dates.value(date - Dates.DateTime(1899, 12, 30))
+   number = number/86400000
+   XLDate(number)
 end
 
-function xldatetodate(xldate::Real)
-   t,d = modf(xldate)
-   return Dates.DateTime(1899, 12, 30) + Dates.Day(d) + Dates.Millisecond((floor(t * 86400000)))
+
+show(io::IO, xldate::XLDate) = print(io, "$(xldate.val)")
+
+
+DateTime(xldate::XLDate) = DateTime(xldate.val)
+
+
+DateTime(number::Real) = begin
+   decimal, whole = modf(number)
+   Dates.DateTime(1899, 12, 30) + Dates.Day(whole) + Dates.Millisecond((floor(decimal * 86400000)))
 end
 
-function xldatetodate(xldate::XLDate)
-   xldatetodate(xldate.val)
-end
 
-function xldatetodate(xldate::XLDate)
-   xldatetodate(xldate.val)
-end
-
-function toxldate(date::Date)
-   datetime = Dates.value(DateTime(date) - Dates.DateTime(1899, 12, 30))
-   datetime = round(datetime/86400000,digits = 3)
-   return XLDate(datetime)
-end
-
-function toxldate(date::DateTime)
-   datetime = Dates.value(date - Dates.DateTime(1899, 12, 30))
-   datetime = round(datetime/86400000,digits = 3)
-   return XLDate(datetime)
-end
-
-Base.convert(d::Type{Dates.DateTime}, n::XLDate) = xldatetodate(n)
-Base.convert(d::Type{Dates.Date}, n::XLDate) = convert(Date,xldatetodate(n))
-Base.convert(d::Type{T}, n::XLDate) where T<: Real = convert(d,n.val)
-Base.convert(d::Type{XLDate}, n::Dates.DateTime) = toxldate(n)
-Base.convert(d::Type{XLDate}, n::Dates.Date) = toxldate(n)
+# Conversions
+Base.convert(::Type{DateTime}, n::XLDate) = DateTime(n)
+Base.convert(::Type{XLDate}, n::DateTime) = XLDate(n)
+Base.convert(::Type{T}, n::XLDate) where T<: Real = convert(T, n.val)
+Base.convert(::Type{XLDate}, n::T) where T<: Real = XLDate(n)
 
 
-#=
-function text(xldate::XLDate, format_text::String)
-   # m mm
-   # mmm - short form of the month name, for example
-   # mmmm - long form of the month name, for example
-   # mmmmm - month as the first letter, for example M (stands for March and May)
+# Promote to DateTime
+Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where T<:Real = DateTime
+Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where T<:Real = DateTime
 
-   # d  dd
-   # ddd - abbreviated day of the week, for example
-   # dddd - full name of the day of the week, for example
 
-   # h hh m mm s ss AM/PM
-   # Minutes if you put "m" immediately after h codes (hours) or immediately before s codes (seconds)
-end
-=#
+# Promote to Real
+Base.promote_rule(::Type{XLDate{T₂}}, ::Type{T₁}) where T₁<:Real where T₂<:Real = promote_type(T₁, T₂)
+Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where T₁<:Real where T₂<:Real = promote_type(T₁, T₂)
+
+
+# Add some arithmitic
++(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = +(promote(x,y)...)
+*(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = *(promote(x,y)...)
+-(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
+/(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
+^(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
++(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = +(promote(x,y)...)
+*(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = *(promote(x,y)...)
+-(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
+/(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
+^(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
+
+# We can now even define some wild things to happen to DateTime, but let's first not pirate too much
