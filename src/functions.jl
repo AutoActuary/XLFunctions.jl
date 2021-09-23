@@ -5,6 +5,7 @@ using Printf
 # Naughty pirating to adhere to XL's way of doing things
 sum(args...) = sum(args)
 
+
 subtotal_lookup = Dict(
     1 => :average,
     2 => :count,
@@ -80,9 +81,9 @@ text(x::Union{Number,XLDate}, format_text) = begin
 
         # Seconds with milliseconds
         "s" => second,
-        "ss.0" => x->@sprintf("%0.1f", second(x)+(millisecond(x)/1000)),
-        "ss.00" => x->@sprintf("%0.2f", second(x)+(millisecond(x)/1000)),
-        "ss.000" => x->@sprintf("%0.3f", second(x)+(millisecond(x)/1000)),
+        "s.0" => x->@sprintf("%0.1f", second(x)+(millisecond(x)/1000)),
+        "s.00" => x->@sprintf("%0.2f", second(x)+(millisecond(x)/1000)),
+        "s.000" => x->@sprintf("%0.3f", second(x)+(millisecond(x)/1000)),
         "ss" => x->@sprintf("%02d", second(x)),
         "ss.0" => x->@sprintf("%04.1f", second(x)+(millisecond(x)/1000)),
         "ss.00" => x->@sprintf("%05.2f", second(x)+(millisecond(x)/1000)),
@@ -139,20 +140,20 @@ text(x::Union{Number,XLDate}, format_text) = begin
     return join(outlist, "")
 end
 
+
 @testset "text" begin
     nums = [64.16983719, 719.4682757, 749.8760207, 284.6091198, 447.6473053, 89.31552312, 850.0871191, 451.3678795, 581.5977343, 651.2308527, 344.1675642]
     results = ["04:04:33.93 am", "11:14:19.02 am", "09:01:28.19 pm", "02:37:07.95 pm", "03:32:07.18 pm", "07:34:21.20 am", "02:05:27.09 am", "08:49:44.79 am", "02:20:44.24 pm", "05:32:25.67 am", "04:01:17.55 am"]
 
     for (num, result) ∈ zip(nums, results)
         @test text(num, "hh:mm:ss.00 AM/PM") == result
+        @test text(num, "hh:mm:s.00 AM/PM") == replace(result, ":07."=>":7.")
     end
 
     results = ["19000304", "19011219", "19020118", "19001010", "19010322", "19000329", "19020429", "19010326", "19010803", "19011012", "19001209"]
     for (num, result) ∈ zip(nums, results)
         @test text(num, "yyyyMMdd") == result
-    end
-
-    # There is a lot more to test... but first we keep it here
+    end 
 end
 
 
