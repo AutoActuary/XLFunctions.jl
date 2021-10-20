@@ -1,7 +1,8 @@
 using ReTest
 using Dates: DateTime
 import Dates
-import Base: show, +, *, -, /, ^
+import Base: show, +, *, -, /, ^, ==
+
 
 @testset "XLDate" begin
 
@@ -18,6 +19,9 @@ import Base: show, +, *, -, /, ^
    @test 5 + XLDate(44350.88) == 44355.88
    @test XLDate(44350.88) + 5 == 44355.88
 
+   @test date(10.2, 5.1, 5.2) == 3778
+   @test date(1910.2, 5.1, 5.2) == 3778
+   @test date(1910, 5, 5) == XLDate(Dates.DateTime(1910, 5, 5))
 end
 
 
@@ -63,16 +67,30 @@ Base.promote_rule(::Type{XLDate{T₂}}, ::Type{T₁}) where T₁<:Real where T�
 Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where T₁<:Real where T₂<:Real = promote_type(T₁, T₂)
 
 
-# Add some arithmitic
+# Add some arithmitic promotions
 +(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = +(promote(x,y)...)
 *(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = *(promote(x,y)...)
 -(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
 /(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
 ^(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
+==(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = ==(promote(x,y)...)
+
 +(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = +(promote(x,y)...)
 *(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = *(promote(x,y)...)
 -(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
 /(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
 ^(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
+==(y::XLDate{T₂}, x::T₁) where T₁<:Real where T₂<:Real = ==(promote(x,y)...)
 
-# We can now even define some wild things to happen to DateTime, but let's first not pirate too much
+
+"
+Excel compatable date function
+"
+date(year, month, day) = begin
+   year, month, day = floor(year), floor(month), floor(day)
+
+   # What the heck Excel:
+   year = if year < 1900 year + 1900 else year end
+   
+   return XLDate(Dates.DateTime(year, month, day))
+end
