@@ -1,6 +1,6 @@
 module XLFunctions
 
-    export text, XLDate, int
+    export text, XLDate, int, date
 
     using Dates: length
     using ReTest
