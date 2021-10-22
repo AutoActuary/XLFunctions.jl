@@ -18,6 +18,7 @@ import Base: show, +, *, -, /, ^, ==
    # Does it handle basic arithmitic?
    @test 5 + XLDate(44350.88) == 44355.88
    @test XLDate(44350.88) + 5 == 44355.88
+   @test XLDate(44350.88) >= 44350.88
 
    @test date(10.2, 5.1, 5.2) == 3778
    @test date(1910.2, 5.1, 5.2) == 3778
@@ -84,6 +85,8 @@ Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where T₁<:Real where T�
 -(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
 /(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
 ^(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
+<(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = <(promote(x,y)...)
+>(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = >(promote(x,y)...)
 ==(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = ==(promote(x,y)...)
 
 +(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = +(promote(x,y)...)
@@ -91,6 +94,8 @@ Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where T₁<:Real where T�
 -(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
 /(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
 ^(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
+<(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = <(promote(x,y)...)
+>(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = >(promote(x,y)...)
 ==(y::XLDate{T₂}, x::T₁) where T₁<:Real where T₂<:Real = ==(promote(x,y)...)
 
 
