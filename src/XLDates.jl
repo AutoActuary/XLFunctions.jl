@@ -25,6 +25,11 @@ import Base: show, +, *, -, /, ^, ==
 
    @test eomonth(123224,3).val == 123331
    @test eomonth(123224,-3).val == 123147
+
+
+   projectionstartdate=date(2022, 04, 01)
+   rundate = date(2022, 4, 1)
+   @test (((year(rundate) * 12 + month(rundate)) - year(projectionstartdate) * 12) - month(projectionstartdate)) + 1 == 1
 end
 
 
@@ -39,6 +44,9 @@ XLDate(date::DateTime) = begin
    number = number/86400000
    XLDate(number)
 end
+
+
+XLDate(x::XLDate) = x
 
 
 show(io::IO, xldate::XLDate) = print(io, "$(xldate.val)")
