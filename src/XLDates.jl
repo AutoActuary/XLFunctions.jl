@@ -1,7 +1,7 @@
 using ReTest
 using Dates: DateTime
 import Dates
-import Base: show, +, *, -, /, ^, ==
+import Base: show, +, *, -, /, ^, <, >, ==
 
 
 @testset "XLDate" begin
