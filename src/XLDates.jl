@@ -12,8 +12,8 @@ import Base: show, +, *, -, /, ^, ==
 
    # Does it retain it's convertion to and from DateTime?
    nowdate = Dates.now()
+   @test XLDate(DateTime(XLDate(15673))).val ≈ 15673
    @test XLDate(DateTime(XLDate(DateTime(XLDate(nowdate))))).val ≈ XLDate(nowdate).val
-   @test XLDate(DateTime(XLDate(DateTime(XLDate(nowdate).val)).val)).val ≈ XLDate(nowdate).val
 
    # Does it handle basic arithmitic?
    @test 5 + XLDate(44350.88) == 44355.88
@@ -22,6 +22,9 @@ import Base: show, +, *, -, /, ^, ==
    @test date(10.2, 5.1, 5.2) == 3778
    @test date(1910.2, 5.1, 5.2) == 3778
    @test date(1910, 5, 5) == XLDate(Dates.DateTime(1910, 5, 5))
+
+   @test eomonth(123224,3).val == 123331
+   @test eomonth(123224,-3).val == 123147
 end
 
 
@@ -41,14 +44,14 @@ end
 show(io::IO, xldate::XLDate) = print(io, "$(xldate.val)")
 
 
-DateTime(xldate::XLDate) = DateTime(xldate.val)
+DateTime(xldate::XLDate) = xlnum_to_datetime(xldate.val)
 
 
-DateTime(number::Real) = begin
+xlnum_to_datetime(number::Real) = begin
    decimal, whole = modf(number)
    Dates.DateTime(1899, 12, 30) + Dates.Day(whole) + Dates.Millisecond((floor(decimal * 86400000)))
 end
-
+   
 
 # Conversions
 Base.convert(::Type{DateTime}, n::XLDate) = DateTime(n)
@@ -58,8 +61,8 @@ Base.convert(::Type{XLDate}, n::T) where T<: Real = XLDate(n)
 
 
 # Promote to DateTime
-Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where T<:Real = DateTime
-Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where T<:Real = DateTime
+Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where T<:Real = XLDate
+Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where T<:Real = XLDate
 
 
 # Promote to Real
@@ -93,4 +96,23 @@ date(year, month, day) = begin
    year = if year < 1900 year + 1900 else year end
    
    return XLDate(Dates.DateTime(year, month, day))
+end
+
+year(x) = Dates.year(DateTime(XLDate(x)))
+
+month(x) = Dates.month(DateTime(XLDate(x)))
+
+day(x) = Dates.day(DateTime(XLDate(x)))
+
+eomonth(x, months) = begin
+   avg_gregorian_days_in_month = 365.2425/12
+
+   # First get the middle-ish of the next month (~15th day)
+   # Then jump an average month at a time
+   # Then floor the month -> (yyy, mm, 1)
+   # Then jump one day earlier
+
+   x = (date(year(x), month(x), avg_gregorian_days_in_month/2
+         ) + floor(months+1)*avg_gregorian_days_in_month)
+   x = XLFunctions.XLDate(date(year(x), month(x), 1)-1)
 end

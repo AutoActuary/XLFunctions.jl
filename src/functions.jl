@@ -122,7 +122,7 @@ text(x::Union{Number,XLDate}, format_text) = begin
         end
     end
     
-    datetime = DateTime(x)
+    datetime = DateTime(XLDate(x))
     values = [string(datedict[key](datetime)) for key in keylist]
 
     outlist = []
