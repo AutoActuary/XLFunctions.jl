@@ -14,6 +14,9 @@ import Base: show, +, *, -, /, ^, <, >, ==
    nowdate = Dates.now()
    @test XLDate(DateTime(XLDate(15673))).val ≈ 15673
    @test XLDate(DateTime(XLDate(DateTime(XLDate(nowdate))))).val ≈ XLDate(nowdate).val
+   x = Dates.now()
+   @test XLDate(x) - XLDate(Dates.Date(x)) < 1.0001 
+   @test 32937 == XLDate(32937.0)
 
    # Does it handle basic arithmitic?
    @test 5 + XLDate(44350.88) == 44355.88
@@ -46,6 +49,7 @@ XLDate(date::DateTime) = begin
    XLDate(number)
 end
 
+XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
 
 XLDate(x::XLDate) = x
 
@@ -63,6 +67,7 @@ end
    
 
 # Conversions
+Base.convert(::Type{XLDate{T₁}}, n::XLDate{T₂}) where T₁ where T₂ = DateTime(convert(T₁, n.val))
 Base.convert(::Type{DateTime}, n::XLDate) = DateTime(n)
 Base.convert(::Type{XLDate}, n::DateTime) = XLDate(n)
 Base.convert(::Type{T}, n::XLDate) where T<: Real = convert(T, n.val)
@@ -70,33 +75,29 @@ Base.convert(::Type{XLDate}, n::T) where T<: Real = XLDate(n)
 
 
 # Promote to DateTime
-Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where T<:Real = XLDate
-Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where T<:Real = XLDate
+Base.promote_rule(::Type{XLDate{T₁}}, ::Type{XLDate{T₂}}) where T₁ where T₂ = XLDate{promote_type(T₁, T₂)}
+Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where T = XLDate
+Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where T = XLDate
 
 
 # Promote to Real
-Base.promote_rule(::Type{XLDate{T₂}}, ::Type{T₁}) where T₁<:Real where T₂<:Real = promote_type(T₁, T₂)
-Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where T₁<:Real where T₂<:Real = promote_type(T₁, T₂)
+Base.promote_rule(::Type{XLDate{T₂}}, ::Type{T₁}) where T₁ where T₂ = promote_type(T₁, T₂)
+Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where T₁ where T₂ = promote_type(T₁, T₂)
 
 
 # Add some arithmitic promotions
-+(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = +(promote(x,y)...)
-*(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = *(promote(x,y)...)
--(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
-/(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
-^(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
-<(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = <(promote(x,y)...)
->(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = >(promote(x,y)...)
-==(x::T₁, y::XLDate{T₂}) where T₁<:Real where T₂<:Real = ==(promote(x,y)...)
+for op ∈ (:(+), :(*), :(-), :(/), :(^))
+   @eval ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where T₁ where T₂ = XLDate(($op)(x.val, y.val))
+end
 
-+(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = +(promote(x,y)...)
-*(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = *(promote(x,y)...)
--(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = -(promote(x,y)...)
-/(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = /(promote(x,y)...)
-^(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = ^(promote(x,y)...)
-<(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = <(promote(x,y)...)
->(x::XLDate{T₁}, y::T₂) where T₁<:Real where T₂<:Real = >(promote(x,y)...)
-==(y::XLDate{T₂}, x::T₁) where T₁<:Real where T₂<:Real = ==(promote(x,y)...)
+for op ∈ (:(<), :(>), :(==))
+   @eval ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where T₁ where T₂ = ($op)(x.val, y.val)
+end
+
+for op ∈ (:(+), :(*), :(-), :(/), :(^), :(<), :(>), :(==))
+   @eval ($op)(x::T₁, y::XLDate{T₂}) where T₁ where T₂ = ($op)(promote(x,y)...)
+   @eval ($op)(x::XLDate{T₁}, y::T₂) where T₁ where T₂ = ($op)(promote(x,y)...)
+end
 
 
 "
