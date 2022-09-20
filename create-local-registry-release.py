@@ -135,13 +135,19 @@ def main():
     ensure_git_repo_is_clean()
     ensure_git_on_main_branch()
 
-    new_tag = input(f"Enter a new tag (latest tag is {get_latest_tag()}): ")
-    ensure_valid_semver(new_tag)
+    # or leave empty if you want to use current tag
+    latest_tag = get_latest_tag()
+    new_tag = input(f"Enter new tag (leave empty to use current tag {latest_tag}): ")
+    
+    if new_tag != "":
+        print(f"Successfully created release {new_tag}.")
+        ensure_valid_semver(new_tag)
+        replace_version_tag(new_tag)
 
-    replace_version_tag(new_tag)
-    print(f"Update version to {new_tag}")
-    git_commit(f"Update version to {new_tag}")
-    git_tag(new_tag)
+        print(f"Update version to {new_tag}")
+        git_commit(f"Update version to {new_tag}")
+        git_tag(new_tag)
+
     git_push()
 
     package = get_current_package_name()
