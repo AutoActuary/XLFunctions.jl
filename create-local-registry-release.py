@@ -66,9 +66,9 @@ class GitDirty(Exception):
 def ensure_git_repo_is_clean():
     with cd(get_current_dir()):
         if (
-            subprocess.check_output(["git", "status", "--porcelain"])
-            .decode("utf-8")
-            .strip()
+                subprocess.check_output(["git", "status", "--porcelain"])
+                        .decode("utf-8")
+                        .strip()
         ):
             raise GitDirty(
                 "Git repo is dirty. Please commit or stash your changes before running this script."
@@ -138,15 +138,17 @@ def main():
     # or leave empty if you want to use current tag
     latest_tag = get_latest_tag()
     new_tag = input(f"Enter new tag (leave empty to use current tag {latest_tag}): ")
-    
+
     if new_tag != "":
-        print(f"Successfully created release {new_tag}.")
         ensure_valid_semver(new_tag)
         replace_version_tag(new_tag)
 
         print(f"Update version to {new_tag}")
         git_commit(f"Update version to {new_tag}")
         git_tag(new_tag)
+
+    else:
+        new_tag = latest_tag
 
     git_push()
 
@@ -157,9 +159,17 @@ def main():
             [
                 "julia",
                 "-e",
-                f'using Pkg; pkg"dev ."; using LocalRegistry; using {package}; register({package})',
+                f"using Pkg;"
+                f'pkg"activate --temp";'
+                f'pkg"dev .";'
+                f'pkg"add LocalRegistry";'
+                f"using LocalRegistry;"
+                f"using {package};"
+                f"register({package})",
             ]
         )
+
+    print(f"Successfully created release {new_tag}.")
 
 
 if __name__ == "__main__":
