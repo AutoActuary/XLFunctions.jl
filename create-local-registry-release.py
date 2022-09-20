@@ -115,13 +115,31 @@ def get_current_package_name():
     return str(os.path.basename(get_current_dir())).replace(".jl", "")
 
 
+def is_valid_semver(version):
+    pattern = re.compile(
+        r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+    )
+    return pattern.match(version)
+
+
+class InvalidSemver(Exception):
+    pass
+
+
+def ensure_valid_semver(version):
+    if not is_valid_semver(version):
+        raise InvalidSemver(f"{version} is not a valid semver version.")
+
+
 def main():
     ensure_git_repo_is_clean()
     ensure_git_on_main_branch()
 
     new_tag = input(f"Enter a new tag (latest tag is {get_latest_tag()}): ")
+    ensure_valid_semver(new_tag)
 
     replace_version_tag(new_tag)
+    print(f"Update version to {new_tag}")
     git_commit(f"Update version to {new_tag}")
     git_tag(new_tag)
     git_push()
