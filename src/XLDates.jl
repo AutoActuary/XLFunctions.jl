@@ -23,13 +23,18 @@ import Base: show, +, *, -, /, ^, <, >, ==
    @test XLDate(44350.88) + 5 == 44355.88
    @test XLDate(44350.88) >= 44350.88
 
+   # Can you extract year month and day
    @test date(10.2, 5.1, 5.2) == 3778
    @test date(1910.2, 5.1, 5.2) == 3778
    @test date(1910, 5, 5) == XLDate(Dates.DateTime(1910, 5, 5))
 
+   # Can you extract year month and day from a String
+   @test year("2020-01-02") == 2020
+   @test month("2020-01-02") == 1
+   @test day("2020-01-02") == 2
+
    @test eomonth(123224,3).val == 123331
    @test eomonth(123224,-3).val == 123147
-
 
    projectionstartdate=date(2022, 04, 01)
    rundate = date(2022, 4, 1)
@@ -51,7 +56,11 @@ end
 
 XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
 
-XLDate(x::XLDate) = x
+#TODO: Why cast to itself?
+XLDate(date::XLDate) = date
+
+#TODO: Why not cast a String? 
+#XLDate(date::String) = Dates.DateTime(date)
 
 
 show(io::IO, xldate::XLDate) = print(io, "$(xldate.val)")
@@ -112,11 +121,19 @@ date(year, month, day) = begin
    return XLDate(Dates.DateTime(year, month, day))
 end
 
-year(x) = Dates.year(DateTime(XLDate(x)))
 
-month(x) = Dates.month(DateTime(XLDate(x)))
+year(x) = Dates.year(Dates.DateTime(XLDate(x)))
 
-day(x) = Dates.day(DateTime(XLDate(x)))
+month(x) = Dates.month(Dates.DateTime(XLDate(x)))
+
+day(x) = Dates.day(Dates.DateTime(XLDate(x)))
+
+year(x::String) = Dates.year(Dates.DateTime(x))
+
+month(x::String) = Dates.month(Dates.DateTime(x))
+   
+day(x::String) = Dates.day(Dates.DateTime(x))
+
 
 eomonth(x, months) = begin
    avg_gregorian_days_in_month = 365.2425/12
