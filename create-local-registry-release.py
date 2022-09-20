@@ -48,36 +48,36 @@ def get_latest_tag():
         return None
 
 
-def replace_version_tag(tag):
+def replace_version_tag_in_project_toml(tag):
     with cd(get_current_dir()):
         project_file = Path(get_current_dir(), "Project.toml")
         project_file_contents = project_file.read_text()
 
         project_file_contents = re.sub(
-            r'version = ".*"', f'version = "{tag}"', project_file_contents
+            r'version\s*=\s*".*"', f'version = "{tag}"', project_file_contents
         )
         project_file.write_text(project_file_contents)
 
 
-class GitDirty(Exception):
+class GitIsDirty(Exception):
     pass
 
 
 def ensure_git_repo_is_clean():
     with cd(get_current_dir()):
         if (
-                subprocess.check_output(["git", "status", "--porcelain"])
-                        .decode("utf-8")
-                        .strip()
+            subprocess.check_output(["git", "status", "--porcelain"])
+            .decode("utf-8")
+            .strip()
         ):
-            raise GitDirty(
+            raise GitIsDirty(
                 "Git repo is dirty. Please commit or stash your changes before running this script."
             )
 
 
-def git_commit(message):
+def git_commit_project_toml(message):
     with cd(get_current_dir()):
-        subprocess.check_call(["git", "add", "."])
+        subprocess.check_call(["git", "add", "Project.toml"])
         subprocess.check_call(["git", "commit", "-m", message])
 
 
@@ -141,10 +141,10 @@ def main():
 
     if new_tag != "":
         ensure_valid_semver(new_tag)
-        replace_version_tag(new_tag)
+        replace_version_tag_in_project_toml(new_tag)
 
         print(f"Update version to {new_tag}")
-        git_commit(f"Update version to {new_tag}")
+        git_commit_project_toml(f"Update version to {new_tag}")
         git_tag(new_tag)
 
     else:
