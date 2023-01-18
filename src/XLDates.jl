@@ -1,57 +1,18 @@
 using ReTest
-using Dates: DateTime
-import Dates
+using Dates: Dates, DateTime, length
 import Base: show, +, *, -, /, ^, <, >, ==
 
-
-@testset "XLDate" begin
-
-   # Does it display like a number?
-   @test repr(XLDate(32937.0)) == "32937"
-   @test repr(XLDate(32937)) == "32937"
-
-   # Does it retain it's convertion to and from DateTime?
-   nowdate = Dates.now()
-   @test XLDate(DateTime(XLDate(15673))).val ≈ 15673
-   @test XLDate(DateTime(XLDate(DateTime(XLDate(nowdate))))).val ≈ XLDate(nowdate).val
-   x = Dates.now()
-   @test XLDate(x) - XLDate(Dates.Date(x)) < 1.0001 
-   @test 32937 == XLDate(32937.0)
-
-   # Does it handle basic arithmitic?
-   @test 5 + XLDate(44350.88) == 44355.88
-   @test XLDate(44350.88) + 5 == 44355.88
-   @test XLDate(44350.88) >= 44350.88
-
-   # Can you extract year month and day
-   @test date(10.2, 5.1, 5.2) == 3778
-   @test date(1910.2, 5.1, 5.2) == 3778
-   @test date(1910, 5, 5) == XLDate(Dates.DateTime(1910, 5, 5))
-
-   # Can you extract year month and day from a String
-   @test year("2020-01-02") == 2020
-   @test month("2020-01-02") == 1
-   @test day("2020-01-02") == 2
-
-   @test eomonth(123224,3).val == 123331
-   @test eomonth(123224,-3).val == 123147
-
-   projectionstartdate=date(2022, 04, 01)
-   rundate = date(2022, 4, 1)
-   @test (((year(rundate) * 12 + month(rundate)) - year(projectionstartdate) * 12) - month(projectionstartdate)) + 1 == 1
-end
-
-
 struct XLDate{T<:Real}
-   val::T
-   XLDate(number::T) where T<:Real = floor(number) == number ? new{Int}(Int(number)) : new{typeof(number)}(number)
+    val::T
+    function XLDate(number::T) where {T<:Real}
+        return floor(number) == number ? new{Int}(Int(number)) : new{typeof(number)}(number)
+    end
 end
-
 
 XLDate(date::DateTime) = begin
-   number = Dates.value(date - Dates.DateTime(1899, 12, 30))
-   number = number/86400000
-   XLDate(number)
+    number = Dates.value(date - Dates.DateTime(1899, 12, 30))
+    number = number / 86400000
+    XLDate(number)
 end
 
 XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
@@ -59,68 +20,72 @@ XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
 #TODO: Why cast to itself?
 XLDate(date::XLDate) = date
 
-#TODO: Why not cast a String? 
-#XLDate(date::String) = Dates.DateTime(date)
-
-
 show(io::IO, xldate::XLDate) = print(io, "$(xldate.val)")
-
 
 DateTime(xldate::XLDate) = xlnum_to_datetime(xldate.val)
 
-
-xlnum_to_datetime(number::Real) = begin
-   decimal, whole = modf(number)
-   Dates.DateTime(1899, 12, 30) + Dates.Day(whole) + Dates.Millisecond((floor(decimal * 86400000)))
+function xlnum_to_datetime(number::Real)
+    decimal, whole = modf(number)
+    return Dates.DateTime(1899, 12, 30) +
+           Dates.Day(whole) +
+           Dates.Millisecond((floor(decimal * 86400000)))
 end
-   
 
 # Conversions
-Base.convert(::Type{XLDate{T₁}}, n::XLDate{T₂}) where T₁ where T₂ = DateTime(convert(T₁, n.val))
+function Base.convert(::Type{XLDate{T₁}}, n::XLDate{T₂}) where {T₁} where {T₂}
+    return DateTime(convert(T₁, n.val))
+end
 Base.convert(::Type{DateTime}, n::XLDate) = DateTime(n)
 Base.convert(::Type{XLDate}, n::DateTime) = XLDate(n)
-Base.convert(::Type{T}, n::XLDate) where T<: Real = convert(T, n.val)
-Base.convert(::Type{XLDate}, n::T) where T<: Real = XLDate(n)
-
+Base.convert(::Type{T}, n::XLDate) where {T<:Real} = convert(T, n.val)
+Base.convert(::Type{XLDate}, n::T) where {T<:Real} = XLDate(n)
 
 # Promote to DateTime
-Base.promote_rule(::Type{XLDate{T₁}}, ::Type{XLDate{T₂}}) where T₁ where T₂ = XLDate{promote_type(T₁, T₂)}
-Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where T = XLDate
-Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where T = XLDate
-
+function Base.promote_rule(::Type{XLDate{T₁}}, ::Type{XLDate{T₂}}) where {T₁} where {T₂}
+    return XLDate{promote_type(T₁, T₂)}
+end
+Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where {T} = XLDate
+Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where {T} = XLDate
 
 # Promote to Real
-Base.promote_rule(::Type{XLDate{T₂}}, ::Type{T₁}) where T₁ where T₂ = promote_type(T₁, T₂)
-Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where T₁ where T₂ = promote_type(T₁, T₂)
-
+function Base.promote_rule(::Type{XLDate{T₂}}, ::Type{T₁}) where {T₁} where {T₂}
+    return promote_type(T₁, T₂)
+end
+function Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where {T₁} where {T₂}
+    return promote_type(T₁, T₂)
+end
 
 # Add some arithmitic promotions
-for op ∈ (:(+), :(*), :(-), :(/), :(^))
-   @eval ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where T₁ where T₂ = XLDate(($op)(x.val, y.val))
+for op in (:(+), :(*), :(-), :(/), :(^))
+    @eval function ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where {T₁} where {T₂}
+        return XLDate(($op)(x.val, y.val))
+    end
 end
 
-for op ∈ (:(<), :(>), :(==))
-   @eval ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where T₁ where T₂ = ($op)(x.val, y.val)
+for op in (:(<), :(>), :(==))
+    @eval ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where {T₁} where {T₂} = ($op)(x.val, y.val)
 end
 
-for op ∈ (:(+), :(*), :(-), :(/), :(^), :(<), :(>), :(==))
-   @eval ($op)(x::T₁, y::XLDate{T₂}) where T₁ where T₂ = ($op)(promote(x,y)...)
-   @eval ($op)(x::XLDate{T₁}, y::T₂) where T₁ where T₂ = ($op)(promote(x,y)...)
+for op in (:(+), :(*), :(-), :(/), :(^), :(<), :(>), :(==))
+    @eval ($op)(x::T₁, y::XLDate{T₂}) where {T₁} where {T₂} = ($op)(promote(x, y)...)
+    @eval ($op)(x::XLDate{T₁}, y::T₂) where {T₁} where {T₂} = ($op)(promote(x, y)...)
 end
-
 
 "
 Excel compatable date function
 "
-date(year, month, day) = begin
-   year, month, day = floor(year), floor(month), floor(day)
+function date(year, month, day)
+    year, month, day = floor(year), floor(month), floor(day)
 
-   # What the heck Excel:
-   year = if year < 1900 year + 1900 else year end
-   
-   return XLDate(Dates.DateTime(year, month, day))
+    # What the heck Excel:
+    year = if year < 1900
+        year + 1900
+    else
+        year
+    end
+
+    return XLDate(Dates.DateTime(year, month, day))
 end
-
 
 year(x) = Dates.year(Dates.DateTime(XLDate(x)))
 
@@ -131,19 +96,79 @@ day(x) = Dates.day(Dates.DateTime(XLDate(x)))
 year(x::String) = Dates.year(Dates.DateTime(x))
 
 month(x::String) = Dates.month(Dates.DateTime(x))
-   
+
 day(x::String) = Dates.day(Dates.DateTime(x))
 
+function eomonth(x, months)
+    avg_gregorian_days_in_month = 365.2425 / 12
 
-eomonth(x, months) = begin
-   avg_gregorian_days_in_month = 365.2425/12
+    # First get the middle-ish of the next month (~15th day)
+    # Then jump an average month at a time
+    # Then floor the month -> (yyy, mm, 1)
+    # Then jump one day earlier
 
-   # First get the middle-ish of the next month (~15th day)
-   # Then jump an average month at a time
-   # Then floor the month -> (yyy, mm, 1)
-   # Then jump one day earlier
+    x = (
+        date(year(x), month(x), avg_gregorian_days_in_month / 2) +
+        floor(months + 1) * avg_gregorian_days_in_month
+    )
+    return x = XLFunctions.XLDate(date(year(x), month(x), 1) - 1)
+end
 
-   x = (date(year(x), month(x), avg_gregorian_days_in_month/2
-         ) + floor(months+1)*avg_gregorian_days_in_month)
-   x = XLFunctions.XLDate(date(year(x), month(x), 1)-1)
+function yearfrac(start_date, end_date, basis=0)
+    start_date, end_date = XLDate(start_date), XLDate(end_date)
+
+    if start_date > end_date
+        end_date, start_date = start_date, end_date
+    end
+
+    if basis == 0
+        # US (NASD) 30/360
+        d_start = if day(start_date) == 31
+            30
+        else
+            day(start_date)
+        end
+        d_end = if day(end_date) == 31 && day(start_date) in [31, 30]
+            30
+        else
+            day(end_date)
+        end
+        return (
+            360 * year(end_date) + 30 * month(end_date) + d_end - 360 * year(start_date) -
+            30 * month(start_date) - d_start
+        ) / 360
+
+    elseif basis == 1
+        # actual/actual
+        years = year(start_date):year(end_date)
+        nr_days_in_those_years = sum(Dates.Dates.daysinyear(i) for i in years)
+        return (end_date - start_date) / (nr_days_in_those_years / length(years))
+
+    elseif basis == 2
+        # Actual/360
+        return (end_date - start_date) / 360
+
+    elseif basis == 3
+        # Actual/365
+        return (end_date - start_date) / 365
+
+    elseif basis == 4
+        # European 30/360
+        d_start = if day(start_date) == 31
+            30
+        else
+            day(start_date)
+        end
+        d_end = if day(end_date) == 31
+            30
+        else
+            day(end_date)
+        end
+        return (
+            360 * year(end_date) + 30 * month(end_date) + d_end - 360 * year(start_date) -
+            30 * month(start_date) - d_start
+        ) / 360
+    else
+        throw(ArgumentError("basis must be between 0 and 4"))
+    end
 end
