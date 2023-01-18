@@ -113,4 +113,39 @@ end
     for (num, result) in zip(nums, results)
         @test text(num, "yyyyMMdd") == result
     end
+
+end
+
+@testitem "rounding" begin
+
+    @test round(1.234, 2) == 1.23
+    @test round(1.235, 2) == 1.24
+    @test round(1.234, 1) == 1.2
+    @test round(1.235, 1) == 1.2
+    @test round(1.234, 0) == 1.0
+    @test round(1.635, 0) == 2.0
+    @test round(1.234) == 1.0
+    @test round(1.635) == 2.0
+    @test round(123.234, -1) == 120.0
+
+    @test roundup(1.234, 2) == 1.24
+    @test roundup(1.235, 2) == 1.24
+    @test roundup(1.234, 1) == 1.3
+    @test roundup(1.235, 1) == 1.3
+    @test roundup(1.234, 0) == 2.0
+    @test roundup(1.235, 0) == 2.0
+    @test roundup(1.234) == 2.0
+    @test roundup(1.235) == 2.0
+    @test roundup(123.234, -1) == 130.0
+
+    @test rounddown(1.234, 2) == 1.23
+    @test rounddown(1.235, 2) == 1.23
+    @test rounddown(1.234, 1) == 1.2
+    @test rounddown(1.235, 1) == 1.2
+    @test rounddown(1.234, 0) == 1.0
+    @test rounddown(1.235, 0) == 1.0
+    @test rounddown(1.234) == 1.0
+    @test rounddown(1.235) == 1.0
+    @test rounddown(123.234, -1) == 120.0
+
 end

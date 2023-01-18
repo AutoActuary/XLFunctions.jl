@@ -1,4 +1,4 @@
-import Base: sum
+import Base: sum, round
 using Dates: Dates
 using Printf
 
@@ -20,7 +20,7 @@ subtotal_lookup = Dict(
 )
 
 function matchindex(regexmatch::RegexMatch)
-        return regexmatch.offset => regexmatch.offset + length(regexmatch.match) - 1
+    return regexmatch.offset => regexmatch.offset + length(regexmatch.match) - 1
 end
 
 function hour_ampm(x::DateTime)
@@ -80,7 +80,8 @@ function text(x::Union{Number,XLDate}, format_text)
         "ss" => x -> @sprintf("%02d", Dates.second(x)),
         "ss.0" => x -> @sprintf("%04.1f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
         "ss.00" => x -> @sprintf("%05.2f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
-        "ss.000" => x -> @sprintf("%06.3f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
+        "ss.000" =>
+            x -> @sprintf("%06.3f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
 
         # Years
         "yy" => x -> (@sprintf("%04d", Dates.year(x)))[(end - 2):end],
@@ -138,3 +139,9 @@ function text(x::Union{Number,XLDate}, format_text)
 end
 
 int(x) = floor(Int, x)
+
+round(x, n::Int) = Base.round(x*(10.0^n))/(10.0^n)
+
+roundup(x, n=0) = ceil(x; digits=n)
+
+rounddown(x, n=0) = floor(x; digits=n)
