@@ -1,5 +1,5 @@
 import Base: sum
-using Dates
+using Dates: Dates
 using Printf
 
 # Naughty pirating to adhere to XL's way of doing things
@@ -20,13 +20,11 @@ subtotal_lookup = Dict(
 )
 
 function matchindex(regexmatch::RegexMatch)
-    begin
         return regexmatch.offset => regexmatch.offset + length(regexmatch.match) - 1
-    end
 end
 
 function hour_ampm(x::DateTime)
-    h = hour(x)
+    h = Dates.hour(x)
     displayh = h
     if h == 0
         displayh = 12
@@ -57,36 +55,36 @@ function text(x::Union{Number,XLDate}, format_text)
     #yyyy - four-digit year.
 
     datedict = Dict(
-        "m" => month,
-        "mm" => x -> @sprintf("%02d", month(x)),
-        "mmm" => x -> monthname(x)[1:3],
-        "mmmm" => monthname,
-        "mmmmm" => x -> monthname(x)[1],
-        "d" => day,
-        "dd" => x -> @sprintf("%02d", day(x)),
-        "ddd" => x -> dayname(x)[1:3],
-        "dddd" => dayname,
-        "h" => hour,
-        "hh" => x -> @sprintf("%02d", hour(x)),
+        "m" => Dates.month,
+        "mm" => x -> @sprintf("%02d", Dates.month(x)),
+        "mmm" => x -> Dates.monthname(x)[1:3],
+        "mmmm" => Dates.monthname,
+        "mmmmm" => x -> Dates.monthname(x)[1],
+        "d" => Dates.day,
+        "dd" => x -> @sprintf("%02d", Dates.day(x)),
+        "ddd" => x -> Dates.dayname(x)[1:3],
+        "dddd" => Dates.dayname,
+        "h" => Dates.hour,
+        "hh" => x -> @sprintf("%02d", Dates.hour(x)),
         "am/pm" => x -> (hour_ampm(x)[2]),
         "h_" => x -> (hour_ampm(x)[1]),
         "hh_" => x -> @sprintf("%02d", (hour_ampm(x)[1])),
-        "m_" => minute,
-        "mm_" => x -> @sprintf("%02d", minute(x)),
+        "m_" => Dates.minute,
+        "mm_" => x -> @sprintf("%02d", Dates.minute(x)),
 
         # Seconds with milliseconds
-        "s" => second,
-        "s.0" => x -> @sprintf("%0.1f", second(x) + (millisecond(x) / 1000)),
-        "s.00" => x -> @sprintf("%0.2f", second(x) + (millisecond(x) / 1000)),
-        "s.000" => x -> @sprintf("%0.3f", second(x) + (millisecond(x) / 1000)),
-        "ss" => x -> @sprintf("%02d", second(x)),
-        "ss.0" => x -> @sprintf("%04.1f", second(x) + (millisecond(x) / 1000)),
-        "ss.00" => x -> @sprintf("%05.2f", second(x) + (millisecond(x) / 1000)),
-        "ss.000" => x -> @sprintf("%06.3f", second(x) + (millisecond(x) / 1000)),
+        "s" => Dates.second,
+        "s.0" => x -> @sprintf("%0.1f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
+        "s.00" => x -> @sprintf("%0.2f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
+        "s.000" => x -> @sprintf("%0.3f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
+        "ss" => x -> @sprintf("%02d", Dates.second(x)),
+        "ss.0" => x -> @sprintf("%04.1f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
+        "ss.00" => x -> @sprintf("%05.2f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
+        "ss.000" => x -> @sprintf("%06.3f", Dates.second(x) + (Dates.millisecond(x) / 1000)),
 
         # Years
-        "yy" => x -> (@sprintf("%04d", year(x)))[(end - 2):end],
-        "yyyy" => x -> @sprintf("%04d", year(x)),
+        "yy" => x -> (@sprintf("%04d", Dates.year(x)))[(end - 2):end],
+        "yyyy" => x -> @sprintf("%04d", Dates.year(x)),
     )
 
     #monthsdict = ...?
