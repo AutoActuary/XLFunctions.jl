@@ -88,19 +88,11 @@ function date(year, month, day)
     return XLDate(Dates.DateTime(year, month, day))
 end
 
-
 year(x) = Dates.year(Dates.DateTime(XLDate(x)))
 
 month(x) = Dates.month(Dates.DateTime(XLDate(x)))
 
 day(x) = Dates.day(Dates.DateTime(XLDate(x)))
-
-#year(x::String) = Dates.year(Dates.DateTime(x))
-
-#month(x::String) = Dates.month(Dates.DateTime(x))
-
-#day(x::String) = Dates.day(Dates.DateTime(x))
-
 
 function eomonth(x, months)
     avg_gregorian_days_in_month = 365.2425 / 12
@@ -171,5 +163,3 @@ function yearfrac(start_date, end_date, basis=0)
         throw(ArgumentError("basis must be between 0 and 4"))
     end
 end
-
-
