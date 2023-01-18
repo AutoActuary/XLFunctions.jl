@@ -1,6 +1,6 @@
 using ReTest
 using Dates: Dates, DateTime, length
-import Base: show, +, *, -, /, ^, <, >, ==
+import Base: show, +, *, -, /, ^, <, >, ==, isless
 
 struct XLDate{T<:Real}
     val::T
@@ -16,6 +16,8 @@ XLDate(date::DateTime) = begin
 end
 
 XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
+
+XLDate(date::String) = XLDate(Dates.DateTime(date))
 
 #TODO: Why cast to itself?
 XLDate(date::XLDate) = date
@@ -62,7 +64,7 @@ for op in (:(+), :(*), :(-), :(/), :(^))
     end
 end
 
-for op in (:(<), :(>), :(==))
+for op in (:(<), :(>), :(==), :isless)
     @eval ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where {T₁} where {T₂} = ($op)(x.val, y.val)
 end
 
@@ -87,17 +89,19 @@ function date(year, month, day)
     return XLDate(Dates.DateTime(year, month, day))
 end
 
+
 year(x) = Dates.year(Dates.DateTime(XLDate(x)))
 
 month(x) = Dates.month(Dates.DateTime(XLDate(x)))
 
 day(x) = Dates.day(Dates.DateTime(XLDate(x)))
 
-year(x::String) = Dates.year(Dates.DateTime(x))
+#year(x::String) = Dates.year(Dates.DateTime(x))
 
-month(x::String) = Dates.month(Dates.DateTime(x))
+#month(x::String) = Dates.month(Dates.DateTime(x))
 
-day(x::String) = Dates.day(Dates.DateTime(x))
+#day(x::String) = Dates.day(Dates.DateTime(x))
+
 
 function eomonth(x, months)
     avg_gregorian_days_in_month = 365.2425 / 12
@@ -115,11 +119,7 @@ function eomonth(x, months)
 end
 
 function yearfrac(start_date, end_date, basis=0)
-    start_date, end_date = XLDate(start_date), XLDate(end_date)
-
-    if start_date > end_date
-        end_date, start_date = start_date, end_date
-    end
+    start_date, end_date = minmax(XLDate(start_date), XLDate(end_date))
 
     if basis == 0
         # US (NASD) 30/360
@@ -172,3 +172,5 @@ function yearfrac(start_date, end_date, basis=0)
         throw(ArgumentError("basis must be between 0 and 4"))
     end
 end
+
+
