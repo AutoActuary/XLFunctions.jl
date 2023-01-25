@@ -3,9 +3,13 @@ using XLFunctions
 @testitem "xldate" begin
     using Dates: Dates, DateTime
 
-    # Does it display like a number?
-    @test repr(XLDate(32937.0)) == "32937"
-    @test repr(XLDate(32937)) == "32937"
+    # Does it display like truncated ISO 8601?
+    @test repr(XLDate(32937.0)) == "1990-03-05" 
+    @test repr(XLDate(32937)) == "1990-03-05"
+    @test repr(XLDate(32937.12345)) == "1990-03-05T02:57:46.079"
+    @test string(date(1910, 5, 5)) == "1910-05-05"
+    @test "$(date(1910, 5, 5))" == "1910-05-05"
+
 
     # Does it retain it's convertion to and from DateTime?
     nowdate = Dates.now()
