@@ -21,17 +21,16 @@ XLDate(date::String) = XLDate(Dates.DateTime(date))
 #TODO: Why cast to itself?
 XLDate(date::XLDate) = date
 
-function show(io::IO, xldate::XLDate) 
+function show(io::IO, xldate::XLDate)
     datetime = Dates.DateTime(xldate)
     if xldate.val == floor(xldate.val)
         # format to ISO 8601 day
         print(io, Dates.format(datetime, "yyyy-mm-dd"))
-    else 
-       # format to ISO 8601 milliseconds
+    else
+        # format to ISO 8601 milliseconds
         print(io, Dates.format(datetime, "yyyy-mm-ddTHH:MM:SS.sss"))
     end
 end
-
 
 DateTime(xldate::XLDate) = xlnum_to_datetime(xldate.val)
 

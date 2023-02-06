@@ -1,9 +1,9 @@
-import Base: sum, round
 using Dates: Dates
 using Printf
 
 # Naughty pirating to adhere to XL's way of doing things
-sum(args...) = sum(args)
+sum(x) = Base.sum(x)
+sum(args...) = Base.sum([sum(i) for i in args])
 
 subtotal_lookup = Dict(
     1 => :average,
@@ -140,7 +140,9 @@ end
 
 int(x) = floor(Int, x)
 
-round(x, n::Int) = Base.round(x*(10.0^n))/(10.0^n)
+round(x) = Base.round(x)
+
+round(x, n::Int) = Base.round(x * (10.0^n)) / (10.0^n)
 
 roundup(x, n=0) = ceil(x; digits=n)
 

@@ -1,7 +1,6 @@
 module XLFunctions
 
-export XLDate
-export_xl = (
+function_names = [
     :text,
     :int,
     :date,
@@ -14,16 +13,17 @@ export_xl = (
     :round,
     :roundup,
     :rounddown,
-)
-
-# Add xl_ prefix to allow name conflicts
-for f in export_xl
-    xl_f = Symbol("xl_", f)
-    @eval $xl_f(args...) = $f(args...)
-    @eval export $f, $xl_f
-end
+]
 
 include("xldates.jl")
 include("functions.jl")
+
+xlfunctions = Dict(i => eval(i) for i in function_names)
+
+export XLDate
+for f in function_names
+    @eval export $f
+end
+export xlfunctions
 
 end

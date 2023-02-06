@@ -4,12 +4,11 @@ using XLFunctions
     using Dates: Dates, DateTime
 
     # Does it display like truncated ISO 8601?
-    @test repr(XLDate(32937.0)) == "1990-03-05" 
+    @test repr(XLDate(32937.0)) == "1990-03-05"
     @test repr(XLDate(32937)) == "1990-03-05"
     @test repr(XLDate(32937.12345)) == "1990-03-05T02:57:46.079"
     @test string(date(1910, 5, 5)) == "1910-05-05"
     @test "$(date(1910, 5, 5))" == "1910-05-05"
-
 
     # Does it retain it's convertion to and from DateTime?
     nowdate = Dates.now()
@@ -64,7 +63,7 @@ using XLFunctions
     @test yearfrac(start_date, end_date, 2) ≈ 3.630555556
     @test yearfrac(start_date, end_date, 3) ≈ 3.580821918
     @test yearfrac(start_date, end_date, 4) ≈ 3.580555556
-    
+
     @test_throws MethodError "2019-01-01" + "2022-07-31"
 end
 
@@ -117,10 +116,14 @@ end
     for (num, result) in zip(nums, results)
         @test text(num, "yyyyMMdd") == result
     end
-
 end
 
 @testitem "rounding" begin
+    using XLFunctions: sum, round
+
+    @test sum([1, 2, 3]) == 6
+    @test sum(1, 2, 3) == 6.0
+    @test sum([1, 2, 3], 4, [5, 6]) == 21
 
     @test round(1.234, 2) == 1.23
     @test round(1.235, 2) == 1.24
@@ -151,5 +154,4 @@ end
     @test rounddown(1.234) == 1.0
     @test rounddown(1.235) == 1.0
     @test rounddown(123.234, -1) == 120.0
-
 end
