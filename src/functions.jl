@@ -1,8 +1,8 @@
 using Dates: Dates
 using Printf
 
-# Naughty pirating to adhere to XL's way of doing things
 sum(x) = Base.sum(x)
+
 sum(args...) = Base.sum([sum(i) for i in args])
 
 subtotal_lookup = Dict(
