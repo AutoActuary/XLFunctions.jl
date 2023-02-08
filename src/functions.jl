@@ -35,6 +35,10 @@ function hour_ampm(x::DateTime)
     return (displayh, displayp)
 end
 
+function concatenate(args...)
+    return string(args...)
+end
+
 function text(x::Union{Number,XLDate}, format_text)
     # m - e.g. 2 (or minute if after "h"/"hh" or immediately before "s"/"ss")
     # mm - e.g. 02 

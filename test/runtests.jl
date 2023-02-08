@@ -4,9 +4,9 @@ using XLFunctions
     using Dates: Dates, DateTime
 
     # Does it display like truncated ISO 8601?
-    @test repr(XLDate(32937.0)) == "1990-03-05"
-    @test repr(XLDate(32937)) == "1990-03-05"
-    @test repr(XLDate(32937.12345)) == "1990-03-05T02:57:46.079"
+    @test repr(XLDate(32937.0)) == "XLDate(\"1990-03-05\")"
+    @test repr(XLDate(32937)) == "XLDate(\"1990-03-05\")"
+    @test repr(XLDate(32937.12345)) == "XLDate(\"1990-03-05T02:57:46.079\")"
     @test string(date(1910, 5, 5)) == "1910-05-05"
     @test "$(date(1910, 5, 5))" == "1910-05-05"
 
@@ -64,7 +64,10 @@ using XLFunctions
     @test yearfrac(start_date, end_date, 3) ≈ 3.580821918
     @test yearfrac(start_date, end_date, 4) ≈ 3.580555556
 
+    @test "2019-01-01" + XLDate(1) == "2019-01-02"
+    @test XLDate(1) + "2019-01-01" == "2019-01-02"
     @test_throws MethodError "2019-01-01" + "2022-07-31"
+    @test_throws MethodError "2019-01-01" + 1
 end
 
 @testitem "text" begin
@@ -116,6 +119,8 @@ end
     for (num, result) in zip(nums, results)
         @test text(num, "yyyyMMdd") == result
     end
+
+    @test concatenate("Hello", " ", "World", " ", XLDate(40000)) == "Hello World 2009-07-06"
 end
 
 @testitem "rounding" begin

@@ -1,5 +1,5 @@
 using Dates: Dates, DateTime, length
-import Base: show, +, *, -, /, ^, <, >, ==, isless
+import Base: repr, show, +, *, -, /, ^, <, >, ==, isless, convert, promote_rule
 
 struct XLDate{T<:Real}
     val::T
@@ -16,20 +16,28 @@ end
 
 XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
 
-XLDate(date::String) = XLDate(Dates.DateTime(date))
+XLDate(date::T) where {T<:AbstractString} = XLDate(Dates.DateTime(date))
 
 #TODO: Why cast to itself?
 XLDate(date::XLDate) = date
 
-function show(io::IO, xldate::XLDate)
+function _xldate_to_iso8601(xldate::XLDate)
     datetime = Dates.DateTime(xldate)
-    if xldate.val == floor(xldate.val)
+    return if xldate.val == floor(xldate.val)
         # format to ISO 8601 day
-        print(io, Dates.format(datetime, "yyyy-mm-dd"))
+        Dates.format(datetime, "yyyy-mm-dd")
     else
         # format to ISO 8601 milliseconds
-        print(io, Dates.format(datetime, "yyyy-mm-ddTHH:MM:SS.sss"))
+        Dates.format(datetime, "yyyy-mm-ddTHH:MM:SS.sss")
     end
+end
+
+function repr(xldate::XLDate)
+    return "XLDate(\"$(_xldate_to_iso8601(xldate))\")"
+end
+
+function show(io::IO, xldate::XLDate)
+    return print(io, _xldate_to_iso8601(xldate))
 end
 
 DateTime(xldate::XLDate) = xlnum_to_datetime(xldate.val)
@@ -42,27 +50,31 @@ function xlnum_to_datetime(number::Real)
 end
 
 # Conversions
-function Base.convert(::Type{XLDate{T₁}}, n::XLDate{T₂}) where {T₁} where {T₂}
+function convert(::Type{XLDate{T₁}}, n::XLDate{T₂}) where {T₁} where {T₂}
     return DateTime(convert(T₁, n.val))
 end
-Base.convert(::Type{DateTime}, n::XLDate) = DateTime(n)
-Base.convert(::Type{XLDate}, n::DateTime) = XLDate(n)
-Base.convert(::Type{T}, n::XLDate) where {T<:Real} = convert(T, n.val)
-Base.convert(::Type{XLDate}, n::T) where {T<:Real} = XLDate(n)
+convert(::Type{DateTime}, n::XLDate) = DateTime(n)
+convert(::Type{XLDate}, n::DateTime) = XLDate(n)
+convert(::Type{T}, n::XLDate) where {T<:Real} = convert(T, n.val)
+convert(::Type{XLDate}, n::T) where {T<:Real} = XLDate(n)
+convert(::Type{XLDate}, n::T) where {T<:AbstractString} = XLDate(n)
 
-# Promote to DateTime
-function Base.promote_rule(::Type{XLDate{T₁}}, ::Type{XLDate{T₂}}) where {T₁} where {T₂}
-    return XLDate{promote_type(T₁, T₂)}
+# # promote XLDate types is describes by the operations +, *, -, /, ^, <, >, ==, isless
+# function promote_rule(::Type{XLDate{T₁}}, ::Type{XLDate{T₂}}) where {T₁} where {T₂}
+#    return XLDate{promote_type(T₁, T₂)}
+# end
+
+function promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where {T}
+    return XLDate
 end
-Base.promote_rule(::Type{XLDate{T}}, ::Type{DateTime}) where {T} = XLDate
-Base.promote_rule(::Type{DateTime}, ::Type{XLDate{T}}) where {T} = XLDate
 
-# Promote to Real
-function Base.promote_rule(::Type{XLDate{T₂}}, ::Type{T₁}) where {T₁} where {T₂}
+# promote XLDate types with other types
+function promote_rule(::Type{XLDate{T₁}}, ::Type{T₂}) where {T₁} where {T₂<:Real}
     return promote_type(T₁, T₂)
 end
-function Base.promote_rule(::Type{T₁}, ::Type{XLDate{T₂}}) where {T₁} where {T₂}
-    return promote_type(T₁, T₂)
+
+function promote_rule(::Type{XLDate{T₁}}, ::Type{T₂}) where {T₁} where {T₂<:AbstractString}
+    return XLDate
 end
 
 # Add some arithmitic promotions
@@ -76,7 +88,7 @@ for op in (:(<), :(>), :(==), :isless)
     @eval ($op)(x::XLDate{T₁}, y::XLDate{T₂}) where {T₁} where {T₂} = ($op)(x.val, y.val)
 end
 
-for op in (:(+), :(*), :(-), :(/), :(^), :(<), :(>), :(==))
+for op in (:(+), :(*), :(-), :(/), :(^), :(<), :(>), :(==), :isless)
     @eval ($op)(x::T₁, y::XLDate{T₂}) where {T₁} where {T₂} = ($op)(promote(x, y)...)
     @eval ($op)(x::XLDate{T₁}, y::T₂) where {T₁} where {T₂} = ($op)(promote(x, y)...)
 end

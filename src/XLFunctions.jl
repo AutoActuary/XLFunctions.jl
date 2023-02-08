@@ -1,6 +1,7 @@
 module XLFunctions
 
 function_names = [
+    :concatenate,
     :text,
     :int,
     :date,
