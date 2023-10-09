@@ -159,4 +159,14 @@ end
     @test rounddown(1.234) == 1.0
     @test rounddown(1.235) == 1.0
     @test rounddown(123.234, -1) == 120.0
+
+    @test ceiling(3.7, 1) == 4.0
+    @test ceiling(3.7, 0.5) == 4.0
+    @test ceiling(3.7, 2) == 4.0
+    @test ceiling(-3.7, 1) == -3.0
+    @test ceiling(-3.7, 0.5) == -3.5
+    @test ceiling(-3.7, 2) == -2.0
+    @test ceiling(0, 1) == 0.0
+    @test ceiling(0, 5) == 0.0
+    @test ceiling(-0.3, 0.2) == -0.2
 end

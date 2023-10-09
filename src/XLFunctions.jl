@@ -1,19 +1,20 @@
 module XLFunctions
 
 function_names = [
+    :ceiling,
     :concatenate,
-    :text,
-    :int,
     :date,
-    :year,
-    :yearfrac,
-    :month,
     :day,
     :eomonth,
-    :sum,
+    :int,
+    :month,
     :round,
-    :roundup,
     :rounddown,
+    :roundup,
+    :sum,
+    :text,
+    :year,
+    :yearfrac,
 ]
 
 include("xldates.jl")
