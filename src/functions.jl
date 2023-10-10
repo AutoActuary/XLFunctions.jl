@@ -159,3 +159,7 @@ function ceiling(x, significance)
         return ceil(x / significance) * significance
     end
 end
+
+function choose(index, args...)
+    return args[int(index)]
+end
