@@ -163,3 +163,33 @@ end
 function choose(index, args...)
     return args[int(index)]
 end
+
+function upper(::Missing)
+    return missing
+end
+
+function upper(x::Bool)
+    return x ? "TRUE" : "FALSE"
+end
+
+function upper(x)
+    if x isa Number && (flrx = floor(Int, x)) == x
+        return string(flrx)
+    end
+    return uppercase(string(x))
+end
+
+function lower(x::Missing)
+    return missing
+end
+
+function lower(x::Bool)
+    return x ? "true" : "false"
+end
+
+function lower(x)
+    if x isa Number && (flrx = floor(Int, x)) == x
+        return string(flrx)
+    end
+    return lowercase(string(x))
+end

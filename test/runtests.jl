@@ -201,3 +201,27 @@ end
 
     @test bool(missing) === missing
 end
+
+@testitem "upper and lower" begin
+    # Tests for `upper` function
+    @test upper("hello") == "HELLO"
+    @test upper("HELLO") == "HELLO"
+    @test upper("HelloWorld") == "HELLOWORLD"
+    @test upper(5) == "5"
+    @test upper(5.0) == "5"
+    @test upper(5.5) == "5.5"
+    @test upper(:hello) == "HELLO"
+    @test upper(true) == "TRUE"
+    @test upper(missing) === missing
+
+    # Tests for `lower` function
+    @test lower("hello") == "hello"
+    @test lower("HELLO") == "hello"
+    @test lower("HelloWorld") == "helloworld"
+    @test lower(5) == "5"
+    @test lower(5.0) == "5"
+    @test lower(5.5) == "5.5"
+    @test lower(:HELLO) == "hello"
+    @test lower(false) == "false"
+    @test lower(missing) === missing
+end
