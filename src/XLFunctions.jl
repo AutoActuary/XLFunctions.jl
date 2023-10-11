@@ -1,5 +1,6 @@
 module XLFunctions
 
+# These functions match the names of the Excel functions exactly
 function_names = [
     :ceiling,
     :choose,
@@ -20,10 +21,14 @@ function_names = [
 
 include("xldates.jl")
 include("functions.jl")
-
-xlfunctions = Dict(i => eval(i) for i in function_names)
+include("boolcast.jl")
 
 export XLDate
+export BoolCastError
+export bool
+
+# Generate a Dict to access all Excel functions by name
+xlfunctions = Dict(i => eval(i) for i in function_names)
 for f in function_names
     @eval export $f
 end

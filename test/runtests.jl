@@ -170,3 +170,32 @@ end
     @test ceiling(0, 5) == 0.0
     @test ceiling(-0.3, 0.2) == -0.2
 end
+
+@testitem "bool" begin
+    # Test for bool with Boolean values
+    @test bool(true) == true
+    @test bool(false) == false
+
+    # Test for bool with String values
+    @test bool("True") == true
+    @test bool("true") == true
+    @test bool("TrUe") == true
+    @test bool("False") == false
+    @test bool("false") == false
+    @test_throws BoolCastError bool("RandomString")
+    @test_throws BoolCastError bool("Trrrrue")
+
+    # Test for bool with XLDate values
+    @test bool(XLDate(0)) == false  # Excel's serial date for 0
+    @test bool(XLDate(1)) == true   # Excel's serial date for January 1, 1900
+    @test bool(XLDate(-1)) == true  # Negative date (if possible)
+
+    # Test for bool with Number values
+    @test bool(0) == false
+    @test bool(0.0) == false
+    @test bool(-0.0) == false
+    @test bool(1) == true
+    @test bool(-1) == true
+    @test bool(1.1) == true
+    @test bool(-1.1) == true
+end
