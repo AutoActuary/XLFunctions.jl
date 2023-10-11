@@ -173,8 +173,8 @@ function upper(x::Bool)
 end
 
 function upper(x)
-    if x isa Number && (flrx = floor(Int, x)) == x
-        return string(flrx)
+    if x isa Number
+        return replace(string(x), r"\.0$" => "")
     end
     return uppercase(string(x))
 end
@@ -188,8 +188,8 @@ function lower(x::Bool)
 end
 
 function lower(x)
-    if x isa Number && (flrx = floor(Int, x)) == x
-        return string(flrx)
+    if x isa Number
+        return replace(string(x), r"\.0$" => "")
     end
     return lowercase(string(x))
 end

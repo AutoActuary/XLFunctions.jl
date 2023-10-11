@@ -224,4 +224,5 @@ end
     @test lower(:HELLO) == "hello"
     @test lower(false) == "false"
     @test lower(missing) === missing
+    @test lower(28734628300007468732468) == "28734628300007468732468"
 end
