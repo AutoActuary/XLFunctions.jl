@@ -24,3 +24,7 @@ end
 function bool(x::Number)
     return x != 0
 end
+
+function bool(::Missing)
+    return missing
+end

@@ -198,4 +198,6 @@ end
     @test bool(-1) == true
     @test bool(1.1) == true
     @test bool(-1.1) == true
+
+    @test bool(missing) === missing
 end
