@@ -16,7 +16,24 @@ end
 
 XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
 
-XLDate(date::T) where {T<:AbstractString} = XLDate(Dates.DateTime(date))
+function XLDate(date::T) where {T<:AbstractString}
+    # Convert Excel datetime format to ISO format by replacing space with 'T'
+    date_iso = replace(date, r"^(\d{4}-\d{2}-\d{2}) (\d{2})" => s"\1T\2")
+    fracmatch = match(r"T\d{2}:\d{2}:\d{2}(\.\d+)?$", date_iso)
+
+    # Attempt to detect and construct a format string for fractional seconds
+    if fracmatch !== nothing && fracmatch.captures[1] !== nothing
+        # There are fractional seconds, handle them appropriately
+        return XLDate(
+            DateTime(
+                date_iso,
+                "yyyy-mm-ddTHH:MM:SS." * repeat("s", length(fracmatch.captures[1]) - 1),
+            ),
+        )
+    else
+        return XLDate(DateTime(date_iso))
+    end
+end
 
 #TODO: Why cast to itself?
 XLDate(date::XLDate) = date

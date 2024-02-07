@@ -10,6 +10,17 @@ using XLFunctions
     @test string(date(1910, 5, 5)) == "1910-05-05"
     @test "$(date(1910, 5, 5))" == "1910-05-05"
 
+    # Non ISO complient
+    @test XLDate("2020-01-01 15:01:34") == XLDate("2020-01-01T15:01:34")
+
+    # Decimals allowed
+    @test XLDate("2020-01-01 15:01:34.12").val == 43831.62608935185
+    @test XLDate("2020-01-01 15:01:34.120").val == 43831.62608935185
+    @test XLDate("2020-01-01 15:01:34.1200").val == 43831.62608935185
+    @test XLDate("2020-01-01 15:01:34.12000").val == 43831.62608935185
+    @test XLDate("2020-01-01 15:01:34.120000").val == 43831.62608935185
+    @test XLDate("2020-01-01 15:01:34.1200000").val == 43831.62608935185
+
     # Does it retain it's convertion to and from DateTime?
     nowdate = Dates.now()
     @test XLDate(DateTime(XLDate(15673))).val ≈ 15673
