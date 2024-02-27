@@ -8,6 +8,7 @@ function_names = [
     :date,
     :day,
     :eomonth,
+    :edate,
     :int,
     :lower,
     :month,

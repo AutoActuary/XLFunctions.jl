@@ -132,19 +132,45 @@ month(x) = Dates.month(Dates.DateTime(XLDate(x)))
 
 day(x) = Dates.day(Dates.DateTime(XLDate(x)))
 
+"""
+    eomonth(x, months) -> XLDate
+
+Calculate the end-of-month date after adding a specified number of months to a given date.
+"""
 function eomonth(x, months)
-    avg_gregorian_days_in_month = 365.2425 / 12
+    months = if months > 0
+        floor(Int, months)
+    else
+        ceil(Int, months)
+    end
 
-    # First get the middle-ish of the next month (~15th day)
-    # Then jump an average month at a time
-    # Then floor the month -> (yyy, mm, 1)
-    # Then jump one day earlier
+    x_dt = DateTime(XLDate(x))
 
-    x = (
-        date(year(x), month(x), avg_gregorian_days_in_month / 2) +
-        floor(months + 1) * avg_gregorian_days_in_month
-    )
-    return x = XLFunctions.XLDate(date(year(x), month(x), 1) - 1)
+    # Push to middle of month and walk `months` number of months
+    target_month_middle_dt =
+        DateTime(Dates.year(x_dt), Dates.month(x_dt), 15) + Dates.Month(months)
+
+    # Push to start of next month and walk back a day
+    target_month_end_dt = Dates.ceil(target_month_middle_dt, Dates.Month) - Dates.Day(1)
+
+    return XLDate(target_month_end_dt)
+end
+
+"""
+    edate(x, months) -> XLDate
+
+Calculate the date after adding a specified number of months to a given date.
+"""
+function edate(x, months)
+    months = if months > 0
+        floor(Int, months)
+    else
+        ceil(Int, months)
+    end
+
+    x_dt = DateTime(XLDate(x))
+
+    return XLDate(x_dt + Dates.Month(months))
 end
 
 function yearfrac(start_date, end_date, basis=0)

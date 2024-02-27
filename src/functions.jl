@@ -153,11 +153,7 @@ roundup(x, n=0) = ceil(x; digits=n)
 rounddown(x, n=0) = floor(x; digits=n)
 
 function ceiling(x, significance)
-    if x < 0
-        return ceil(x / significance) * significance
-    else
-        return ceil(x / significance) * significance
-    end
+    return ceil(x / significance) * significance
 end
 
 function choose(index, args...)

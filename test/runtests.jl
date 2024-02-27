@@ -46,6 +46,43 @@ using XLFunctions
 
     @test eomonth(123224, 3).val == 123331
     @test eomonth(123224, -3).val == 123147
+    @test string(eomonth("2023-01-15", 1)) == "2023-02-28"
+    @test string(eomonth("2023-01-31", 0)) == "2023-01-31"
+    @test string(eomonth("2023-02-01", -1)) == "2023-01-31"
+    @test string(eomonth("2023-12-31", 2)) == "2024-02-29"
+    @test string(eomonth("2024-01-01", -2)) == "2023-11-30"
+    @test string(eomonth("2023-03-31", -1)) == "2023-02-28"
+    @test string(eomonth("2023-05-15", 6)) == "2023-11-30"
+    @test string(eomonth("2023-08-31", -3)) == "2023-05-31"
+    @test string(eomonth("2023-07-01", 12)) == "2024-07-31"
+    @test string(eomonth("2023-01-15", 1.9)) == "2023-02-28"
+    @test string(eomonth("2023-01-31", 0.5)) == "2023-01-31"
+    @test string(eomonth("2023-02-01", -1.1)) == "2023-01-31"
+    @test string(eomonth("2023-12-31", 2.8)) == "2024-02-29"
+    @test string(eomonth("2024-01-01", -2.5)) == "2023-11-30"
+    @test string(eomonth("2023-03-31", -1.9)) == "2023-02-28"
+    @test string(eomonth("2023-05-15", 6.7)) == "2023-11-30"
+    @test string(eomonth("2023-08-31", -3.2)) == "2023-05-31"
+    @test string(eomonth("2023-07-01", 12.4)) == "2024-07-31"
+
+    @test string(edate("2022-01-05", -1)) == "2021-12-05"
+    @test string(edate("2022-01-05", -1.01)) == "2021-12-05"
+    @test string(edate("2024-02-29", -1)) == "2024-01-29"
+    @test string(edate("2022-01-31", 1)) == "2022-02-28"
+    @test string(edate("2022-03-31", 1)) == "2022-04-30"
+    @test string(edate("2022-12-31", 1)) == "2023-01-31"
+    @test string(edate("2023-02-28", 1)) == "2023-03-28"
+    @test string(edate("2023-01-31", 1)) == "2023-02-28"
+    @test string(edate("2024-01-31", 1)) == "2024-02-29"
+    @test string(edate("2022-03-31", -1)) == "2022-02-28"
+    @test string(edate("2022-01-01", -2)) == "2021-11-01"
+    @test string(edate("2024-03-01", -1)) == "2024-02-01"
+    @test string(edate("2022-01-31", 0.5)) == "2022-01-31"
+    @test string(edate("2022-11-30", -0.5)) == "2022-11-30"
+    @test string(edate("2022-01-15", 12)) == "2023-01-15"
+    @test string(edate("2022-01-15", -12)) == "2021-01-15"
+    @test string(edate("2021-12-31", 1)) == "2022-01-31"
+    @test string(edate("2022-01-01", -1)) == "2021-12-01"
 
     projectionstartdate = date(2022, 04, 01)
     rundate = date(2022, 4, 1)
@@ -180,6 +217,12 @@ end
     @test ceiling(0, 1) == 0.0
     @test ceiling(0, 5) == 0.0
     @test ceiling(-0.3, 0.2) == -0.2
+    @test ceiling(10, 2) == 10
+    @test ceiling(10, 3) == 12
+    @test ceiling(10.5, 0.2) ≈ 10.6 #rounding error
+    @test ceiling(-10, 2) == -10
+    @test ceiling(-10, 3) == -9
+    @test ceiling(-10.5, 0.2) == -10.4
 end
 
 @testitem "bool" begin
