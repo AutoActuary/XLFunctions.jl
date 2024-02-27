@@ -280,3 +280,27 @@ end
     @test lower(missing) === missing
     @test lower(28734628300007468732468) == "28734628300007468732468"
 end
+
+@testitem "mid, left and right" begin
+    # MID function tests
+    @test XLFunctions.mid("OpenAI ChatGPT", 6, 4) == "I Ch"
+    @test_throws NegativeStringLengthError mid("Indexing 101", 0, 5)
+    @test_throws NegativeStringLengthError mid("Indexing 101", 3, -1)
+    @test mid("Unexpected Error", 5.5, 3) == "pec"
+    @test mid("Out of Bounds", 14, 10) == ""
+    @test mid("Fractional Index", 3.8, 4.2) == "acti"
+
+    # LEFT function tests
+    @test left("Hello, World!", 5) == "Hello"
+    @test_throws NegativeStringLengthError left("2023-02-27", -1)
+    @test left("Partial Text", 0) == ""
+    @test left("Fractional", 4.5) == "Frac"
+    @test left("Short", 10) == "Short"
+
+    # RIGHT function tests
+    @test right("Goodbye, World!", 7) == " World!"
+    @test_throws NegativeStringLengthError right("2023-02-27", -2)
+    @test right("Final Segment", 0) == ""
+    @test right("Nearly There", 5.5) == "There"
+    @test right("Brief", 10) == "Brief"
+end

@@ -1,6 +1,10 @@
 using Dates: Dates
 using Printf
 
+struct NegativeStringLengthError <: Exception
+    msg::String
+end
+
 sum(x) = Base.sum(x)
 
 sum(args...) = Base.sum([sum(i) for i in args])
@@ -188,4 +192,37 @@ function lower(x)
         return replace(string(x), r"\.0$" => "")
     end
     return lowercase(string(x))
+end
+
+function mid(text::AbstractString, start, num_chars)
+    start, num_chars = Base.floor(Int, start), Base.floor(Int, num_chars)
+    if start <= 0
+        throw(NegativeStringLengthError("mid(...) with start=$(start)"))
+    end
+    if num_chars < 0
+        throw(NegativeStringLengthError("mid(...) with num_chars=$(num_chars)"))
+    end
+    return text[start:min(start + num_chars - 1, end)]
+end
+
+function left(text::AbstractString, num_chars)
+    num_chars = Base.floor(Int, num_chars)
+    if num_chars < 0
+        throw(NegativeStringLengthError("left(...) with num_chars=$(num_chars)"))
+    end
+    if num_chars == 0
+        return ""
+    end
+    return text[1:min(num_chars, end)]
+end
+
+function right(text::AbstractString, num_chars)
+    num_chars = Base.floor(Int, num_chars)
+    if num_chars < 0
+        throw(NegativeStringLengthError("right(...) with num_chars=$(num_chars)"))
+    end
+    if  num_chars == 0
+        return ""
+    end
+    return text[max(1, end - num_chars + 1):end]
 end

@@ -10,8 +10,11 @@ function_names = [
     :eomonth,
     :edate,
     :int,
+    :left,
     :lower,
+    :mid,
     :month,
+    :right,
     :round,
     :rounddown,
     :roundup,
@@ -27,8 +30,9 @@ include("functions.jl")
 include("boolcast.jl")
 
 export XLDate
-export BoolCastError
 export bool
+export BoolCastError
+export NegativeStringLengthError
 
 # Generate a Dict to access all Excel functions by name
 xlfunctions = Dict(i => eval(i) for i in function_names)
