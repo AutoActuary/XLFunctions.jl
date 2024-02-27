@@ -1,7 +1,7 @@
 name = "XLFunctions"
 uuid = "9431f398-842c-4cdd-8867-ad7f58b28a5c"
 authors = ["AutoActuary"]
-version = "0.12.1"
+version = "0.13.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
