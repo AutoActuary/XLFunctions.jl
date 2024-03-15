@@ -281,7 +281,7 @@ end
     @test lower(28734628300007468732468) == "28734628300007468732468"
 end
 
-@testitem "mid, left and right" begin
+@testitem "mid, left, right, substitute" begin
     # MID function tests
     @test XLFunctions.mid("OpenAI ChatGPT", 6, 4) == "I Ch"
     @test_throws NegativeStringLengthError mid("Indexing 101", 0, 5)
@@ -303,4 +303,21 @@ end
     @test right("Final Segment", 0) == ""
     @test right("Nearly There", 5.5) == "There"
     @test right("Brief", 10) == "Brief"
+
+    # Note case sensitive
+    @test substitute("Hello, world! World is big.", "world", "Julia") ==
+        "Hello, Julia! World is big."
+    @test substitute("Hello, world! World is big.", "world", "Julia", 1) ==
+        "Hello, Julia! World is big."
+    @test substitute("Cat, cat, CAT!", "cat", "dog", 2) == "Cat, cat, CAT!"
+    @test substitute("Cat, cat, cat, cat!", "cat", "dog", 3) == "Cat, cat, cat, dog!"
+    @test substitute("Bird, bird, bird!", "bird", "duck", 5) == "Bird, bird, bird!"
+    @test substitute("bananas banananas", "na", "nana", 2) == "banananas banananas"
+    @test_throws ArgumentError substitute("Anything here.", "here", "there", 0)
+    @test_throws ArgumentError substitute("There is no spoon.", "fork", "spoon", 0)
+    @test substitute("1234 1234", "2", "3", 1) == "1334 1234"
+    @test substitute("Special & chars! & more chars!", "&", "and", 1) ==
+        "Special and chars! & more chars!"
+    @test substitute("Hello, world!", "test", "Julia") == "Hello, world!"
+    @test substitute("hello, world!", "WORLD", "Julia", 1) == "hello, world!"
 end

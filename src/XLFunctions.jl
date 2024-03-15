@@ -18,6 +18,7 @@ function_names = [
     :round,
     :rounddown,
     :roundup,
+    :substitute,
     :sum,
     :text,
     :upper,

@@ -221,8 +221,50 @@ function right(text::AbstractString, num_chars)
     if num_chars < 0
         throw(NegativeStringLengthError("right(...) with num_chars=$(num_chars)"))
     end
-    if  num_chars == 0
+    if num_chars == 0
         return ""
     end
     return text[max(1, end - num_chars + 1):end]
+end
+
+function substitute(
+    text::AbstractString,
+    old_text::AbstractString,
+    new_text::AbstractString,
+    instance_num::Union{Real,Nothing}=nothing,
+)
+    if instance_num === nothing
+        # If no instance_num provided, replace all instances (case-sensitive)
+        return replace(text, old_text => new_text)
+    end
+
+    instance_num = Base.floor(Int, instance_num)
+
+    if instance_num < 1
+        throw(ArgumentError("instance_num must be greater than or equal to 1"))
+    end
+
+    # Replace specific instance (case-sensitive)
+    count = 0
+    result = ""
+    last_pos = 1
+    found = false
+    for m in eachmatch(Regex(escape_string(old_text)), text)
+        count += 1
+        if count == instance_num
+            found = true
+            result *= text[last_pos:(m.offset - 1)] * new_text
+            last_pos = m.offset + length(m.match) # Corrected usage
+            break
+        else
+            result *= text[last_pos:(m.offset - 1)] * m.match
+            last_pos = m.offset + length(m.match) # Corrected usage
+        end
+    end
+    if !found && instance_num > 1
+        # If the specified instance was not found, return the original text
+        return text
+    end
+    result *= text[last_pos:end]
+    return result
 end
