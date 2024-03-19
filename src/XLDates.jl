@@ -18,7 +18,11 @@ XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
 
 function XLDate(date::AbstractString)
     # Convert Excel datetime format to ISO format by replacing space with 'T'
-    date_iso = replace(date, r"^(\d{4}-\d{2}-\d{2}) (\d{2})" => s"\1T\2")
+    date_iso = replace(
+        date,
+        r"^(\d{4})/(\d{2})/(\d{2})" => s"\1-\2-\3",
+        r"^(\d{4}-\d{2}-\d{2}) (\d{2})" => s"\1T\2",
+    )
     fracmatch = match(r"T\d{2}:\d{2}:\d{2}(\.\d+)?$", date_iso)
 
     # Attempt to detect and construct a format string for fractional seconds
@@ -35,7 +39,7 @@ function XLDate(date::AbstractString)
             XLDate(DateTime(date_iso))
         catch e
             if isa(e, ArgumentError)
-                e.msg = e.msg + " $(repr(date_iso))"
+                rethrow(ArgumentError(e.msg * " $(repr(date_iso))"))
             end
             rethrow(e)
         end
