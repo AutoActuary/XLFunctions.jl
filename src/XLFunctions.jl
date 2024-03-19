@@ -4,6 +4,7 @@ module XLFunctions
 function_names = [
     :ceiling,
     :choose,
+    :concat,
     :concatenate,
     :date,
     :day,

@@ -281,7 +281,7 @@ end
     @test lower(28734628300007468732468) == "28734628300007468732468"
 end
 
-@testitem "mid, left, right, substitute" begin
+@testitem "mid, left, right, substitute, concat" begin
     # MID function tests
     @test XLFunctions.mid("OpenAI ChatGPT", 6, 4) == "I Ch"
     @test_throws NegativeStringLengthError mid("Indexing 101", 0, 5)
@@ -320,4 +320,23 @@ end
         "Special and chars! & more chars!"
     @test substitute("Hello, world!", "test", "Julia") == "Hello, world!"
     @test substitute("hello, world!", "WORLD", "Julia", 1) == "hello, world!"
+
+    @test "hello35world" == concat(["hello", 3, 5, "world"])
+    @test "OpenAI GPT4 GPT4" == concat(["OpenAI", " ", "GPT", 4, " ", "GPT", 4])
+    @test "2024-3-19 Excel" == concat(["2024", "-", 3, "-", 19, " ", "Excel"])
+    @test "1.5 and 2 and again 2" == concat([1.5, " and ", 2, " and again ", 2])
+    @test "Pi equals 3.14; E equals 2.718; Pi 3.14" ==
+        concat(["Pi equals ", 3.14, "; E equals ", 2.718, "; Pi ", 3.14])
+    @test "Date: 2024-03-19; Time: 12:00PM serial 45370" == concat(
+        ["Date: ", "2024-03-19", "; ", "Time: ", "12:00PM"], " serial ", date(2024, 3, 19)
+    )
+    @test "FirstSecondThirdFirstSecondThird" ==
+        concat(["First", "Second", "Third", "First", "Second", "Third"])
+    @test "100200300 - 400500600" == concat([100, 200, 300, " - ", 400, 500, 600])
+    @test "100200300 - 400500600and600" ==
+        concat([100, 200, 300, " - ", 400, 500, 600], "and", [600])
+    @test "Nestedlist with tuples too" ==
+        concat([["Nested", "list"], " with ", ("tuples", " too")])
+    @test "RepeatRepeatArraysArraysAndStrings" ==
+        concat([["Repeat", "Repeat"], ["Arrays", "Arrays"], "And", "Strings"])
 end

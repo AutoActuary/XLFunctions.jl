@@ -39,8 +39,36 @@ function hour_ampm(x::DateTime)
     return (displayh, displayp)
 end
 
+function _format(x)
+    if isa(x, XLDate)
+        return _format(x.val)
+    end
+
+    if isa(x, Real) && x == round(x)
+        return replace(string(x), r"\.0$" => "")
+    end
+
+    return string(x)
+end
+
+function _flatten_and_format(args...)
+    formatted_args = map(x -> begin
+        if typeof(x) <: Union{AbstractArray,Tuple}
+            _flatten_and_format(x...)
+        else
+            _format(x)
+        end
+    end, args)
+    return vcat(formatted_args...)
+end
+
+function concat(args...)
+    formatted_args = _flatten_and_format(args...)
+    return string(formatted_args...)
+end
+
 function concatenate(args...)
-    return string(args...)
+    return string(_format.(args)...)
 end
 
 function text(x::Union{Number,XLDate}, format_text)
