@@ -255,6 +255,8 @@ function datedif(start_date, end_date, unit::AbstractString)
         end_date = DateTime(XLDate(end_date))
     end
 
+    unit = uppercase(unit)
+
     # Validate date order
     if start_date > end_date
         throw(ArgumentError("#NUM! start_date is greater than end_date"))
