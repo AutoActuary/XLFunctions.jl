@@ -31,7 +31,14 @@ function XLDate(date::AbstractString)
             ),
         )
     else
-        return XLDate(DateTime(date_iso))
+        return try
+            XLDate(DateTime(date_iso))
+        catch e
+            if isa(e, ArgumentError)
+                e.msg = e.msg + " $(repr(date_iso))"
+            end
+            rethrow(e)
+        end
     end
 end
 
