@@ -118,6 +118,36 @@ using XLFunctions
     @test_throws MethodError "2019-01-01" + 1
 end
 
+@testitem "ceiling.math" begin
+    @test 11 == ceiling.math(10.5, 1)
+    @test 10.5 == ceiling.math(10.1, 0.5)
+    @test -6 == ceiling.math(-5.5, 2, 1)
+    @test -4 == ceiling.math(-5.5, 2)
+    @test 12.3 == ceiling.math(12.25, 0.1)
+    @test 15 == ceiling.math(12, 5)
+    @test -15 == ceiling.math(-12, 5, 1)
+    @test -10 == ceiling.math(-12, -5)
+    @test 12.5 == ceiling.math(12.5, -2.5, 0)
+    @test 0 == ceiling.math(15, 0)
+    @test 7.8 ≈ ceiling.math(7.8, 0.2)
+    @test -7.8 ≈ ceiling.math(-7.8, 0.2, 1)
+    @test 0 == ceiling.math(0, 10)
+    @test -3 == ceiling.math(-2, 3, 1)
+    @test -2.5 == ceiling.math(-2.5, 0.5, 1)
+    @test 5 == ceiling.math(5, -1)
+    @test 5.5 == ceiling.math(5.5, -1.1)
+    @test -5.5 == ceiling.math(-5.5, -1.1, 1)
+    @test 123.456 == ceiling.math(123.456, 0.001)
+    @test -123.456 == ceiling.math(-123.456, 0.001, 1)
+    @test 99.99 ≈ ceiling.math(99.99, 0.01)
+    @test 99 == ceiling.math(99, 33)
+    @test -99 == ceiling.math(-99, 33, 1)
+    @test 100 == ceiling.math(100, 100)
+    @test -100 == ceiling.math(-100, 100, 0)
+    @test -100 == ceiling.math(-100, 100, 1)
+    @test 11 == ceiling.math(10.5)
+end
+
 @testitem "dateif" begin
     @test datedif("2001-01-01", "2003-01-01", "Y") == 2
     @test datedif("2001-06-01", "2002-08-15", "D") == 440
