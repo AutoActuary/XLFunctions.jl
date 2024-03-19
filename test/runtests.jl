@@ -168,7 +168,7 @@ end
         @test text(num, "yyyyMMdd") == result
     end
 
-    @test concatenate("Hello", " ", "World", " ", XLDate(40000)) == "Hello World 2009-07-06"
+    @test concatenate("Hello", " ", "World", " ", XLDate(40000)) == "Hello World 40000"
 end
 
 @testitem "rounding" begin

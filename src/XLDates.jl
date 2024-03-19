@@ -16,7 +16,7 @@ end
 
 XLDate(date::Dates.Date) = XLDate(Dates.DateTime(date))
 
-function XLDate(date::T) where {T<:AbstractString}
+function XLDate(date::AbstractString)
     # Convert Excel datetime format to ISO format by replacing space with 'T'
     date_iso = replace(date, r"^(\d{4}-\d{2}-\d{2}) (\d{2})" => s"\1T\2")
     fracmatch = match(r"T\d{2}:\d{2}:\d{2}(\.\d+)?$", date_iso)
@@ -108,6 +108,13 @@ end
 for op in (:(+), :(*), :(-), :(/), :(^), :(<), :(>), :(==), :isless)
     @eval ($op)(x::T₁, y::XLDate{T₂}) where {T₁} where {T₂} = ($op)(promote(x, y)...)
     @eval ($op)(x::XLDate{T₁}, y::T₂) where {T₁} where {T₂} = ($op)(promote(x, y)...)
+end
+
+"
+Excel compatable datevalue
+"
+function datevalue(date::String)
+    return XLDate(date)
 end
 
 "
