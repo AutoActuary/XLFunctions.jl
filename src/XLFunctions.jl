@@ -7,6 +7,7 @@ function_names = [
     :concat,
     :concatenate,
     :date,
+    :datedif,
     :day,
     :eomonth,
     :edate,

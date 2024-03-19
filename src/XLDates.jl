@@ -234,3 +234,67 @@ function yearfrac(start_date, end_date, basis=0)
         throw(ArgumentError("basis must be between 0 and 4"))
     end
 end
+
+function datedif(start_date, end_date, unit::AbstractString)
+    if !isa(start_date, DateTime)
+        start_date = DateTime(XLDate(start_date))
+    end
+
+    if !isa(end_date, DateTime)
+        end_date = DateTime(XLDate(end_date))
+    end
+
+    # Validate date order
+    if start_date > end_date
+        throw(ArgumentError("#NUM! start_date is greater than end_date"))
+    end
+
+    # Calculate differences
+    years = year(end_date) - year(start_date)
+    months = month(end_date) - month(start_date)
+    days = day(end_date) - day(start_date)
+
+    # Adjustments for negative differences
+    if days < 0
+        months -= 1
+        days += Dates.daysinmonth(end_date - Dates.Month(1))
+    end
+    if months < 0
+        years -= 1
+        months += 12
+    end
+
+    # Calculate based on unit
+    return if unit == "Y"
+        years
+    elseif unit == "M"
+        12 * years + months
+    elseif unit == "D"
+        Dates.days(end_date - start_date)
+    elseif unit == "MD"
+        # Known issue workaround: Calculate days ignoring months and years
+        if month(start_date) == month(end_date) && year(start_date) == year(end_date)
+            days
+        else
+            day(end_date) - day(Dates.DateTime(year(end_date), month(end_date), 1))
+        end
+    elseif unit == "YM"
+        if day(end_date) < day(start_date)
+            months == 0 ? 11 : months - 1
+        else
+            months
+        end
+    elseif unit == "YD"
+        yyyy, mm, dd = year(end_date), month(start_date), day(start_date)
+
+        try
+            Dates.DateTime(yyyy, mm, dd)
+        catch
+            Dates.DateTime(yyyy, mm, dd - 1)
+        end
+
+        Dates.days(end_date - tmp)
+    else
+        throw(ArgumentError("Invalid unit: $unit"))
+    end
+end
