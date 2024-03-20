@@ -11,6 +11,7 @@ function_names = [
     :day,
     :eomonth,
     :edate,
+    :floor,
     :int,
     :left,
     :lower,
@@ -30,6 +31,7 @@ function_names = [
 
 include("xldates.jl")
 include("functions.jl")
+include("functions_with_dots.jl")
 include("boolcast.jl")
 
 export XLDate

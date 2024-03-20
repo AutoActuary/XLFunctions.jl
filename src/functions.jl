@@ -174,7 +174,7 @@ function text(x::Union{Number,XLDate}, format_text)
     return join(outlist, "")
 end
 
-int(x) = floor(Int, x)
+int(x) = Base.floor(Int, x)
 
 round(x) = Base.round(x)
 
@@ -182,39 +182,7 @@ round(x, n::Int) = Base.round(x * (10.0^n)) / (10.0^n)
 
 roundup(x, n=0) = ceil(x; digits=n)
 
-rounddown(x, n=0) = floor(x; digits=n)
-
-struct _Ceiling
-    math::Base.Callable  # Use a more specific type as needed
-end
-
-function _ceiling(x, significance)
-    return ceil(x / significance) * significance
-end
-
-function _ceiling_math(x, significance=1.0, mode=0)
-    if significance == 0
-        return typeof(x)(0)
-    end
-
-    # Adjusting significance for negative numbers based on mode
-    adjusted_significance = significance
-    if mode != 0 && x < 0
-        adjusted_significance = -abs(significance)
-    else
-        adjusted_significance = abs(significance)
-    end
-
-    return ceil(x / adjusted_significance) * adjusted_significance
-end
-
-function (::_Ceiling)(x, significance)
-    return _ceiling(x, significance)
-end
-
-
-ceiling = _Ceiling(_ceiling_math)
-
+rounddown(x, n=0) = Base.floor(x; digits=n)
 
 function choose(index, args...)
     return args[int(index)]

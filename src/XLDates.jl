@@ -4,7 +4,11 @@ import Base: repr, show, +, *, -, /, ^, <, >, ==, isless, convert, promote_rule
 struct XLDate{T<:Real}
     val::T
     function XLDate(number::T) where {T<:Real}
-        return floor(number) == number ? new{Int}(Int(number)) : new{typeof(number)}(number)
+        return if Base.floor(number) == number
+            new{Int}(Int(number))
+        else
+            new{typeof(number)}(number)
+        end
     end
 end
 
@@ -51,7 +55,7 @@ XLDate(date::XLDate) = date
 
 function _xldate_to_iso8601(xldate::XLDate)
     datetime = Dates.DateTime(xldate)
-    return if xldate.val == floor(xldate.val)
+    return if xldate.val == Base.floor(xldate.val)
         # format to ISO 8601 day
         Dates.format(datetime, "yyyy-mm-dd")
     else
@@ -74,7 +78,7 @@ function xlnum_to_datetime(number::Real)
     decimal, whole = modf(number)
     return Dates.DateTime(1899, 12, 30) +
            Dates.Day(whole) +
-           Dates.Millisecond((floor(decimal * 86400000)))
+           Dates.Millisecond((Base.floor(decimal * 86400000)))
 end
 
 # Conversions
@@ -132,7 +136,7 @@ end
 Excel compatable date function
 "
 function date(year, month, day)
-    year, month, day = floor(year), floor(month), floor(day)
+    year, month, day = Base.floor(year), Base.floor(month), Base.floor(day)
 
     # What the heck Excel:
     year = if year < 1900
@@ -157,7 +161,7 @@ Calculate the end-of-month date after adding a specified number of months to a g
 """
 function eomonth(x, months)
     months = if months > 0
-        floor(Int, months)
+        Base.floor(Int, months)
     else
         ceil(Int, months)
     end
@@ -181,7 +185,7 @@ Calculate the date after adding a specified number of months to a given date.
 """
 function edate(x, months)
     months = if months > 0
-        floor(Int, months)
+        Base.floor(Int, months)
     else
         ceil(Int, months)
     end

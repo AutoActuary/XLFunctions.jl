@@ -118,6 +118,46 @@ using XLFunctions
     @test_throws MethodError "2019-01-01" + 1
 end
 
+@testitem "ceiling" begin
+    # Excel should be ashamed
+    @test_throws ArgumentError XLFunctions.ceiling(12.5, -2.5)
+    @test_throws ArgumentError XLFunctions.ceiling(5, -1)
+    @test_throws ArgumentError XLFunctions.ceiling(5.5, -1.1)
+    @test 0 == XLFunctions.ceiling(15, 0)
+
+    @test 11 == XLFunctions.ceiling(10.5, 1)
+    @test 10.5 == XLFunctions.ceiling(10.1, 0.5)
+    @test -4 == XLFunctions.ceiling(-5.5, 2)
+    @test 12.3 == XLFunctions.ceiling(12.25, 0.1)
+    @test 15 == XLFunctions.ceiling(12, 5)
+    @test -10 == XLFunctions.ceiling(-12, 5)
+    @test -15 == XLFunctions.ceiling(-12, -5)
+    @test 7.8 ≈ XLFunctions.ceiling(7.8, 0.2)
+    @test 0 == XLFunctions.ceiling(0, 10)
+    @test 0 == XLFunctions.ceiling(-2, 3)
+    @test 123.456 == XLFunctions.ceiling(123.456, 0.001)
+    @test 99.99 ≈ XLFunctions.ceiling(99.99, 0.01)
+    @test 99 == XLFunctions.ceiling(99, 33)
+    @test 100 == XLFunctions.ceiling(100, 100)
+    @test 0 == XLFunctions.ceiling(-0.1, 1)
+    @test 2 == XLFunctions.ceiling(1.1, 1)
+    @test -1 == XLFunctions.ceiling(-1.1, 1)
+    @test 1.5 == XLFunctions.ceiling(1.1, 0.5)
+    @test -1 == XLFunctions.ceiling(-1.1, 0.5)
+    @test -1 == XLFunctions.ceiling(-1, 0.5)
+    @test 0 == XLFunctions.ceiling(0, 1)
+    @test -4 == XLFunctions.ceiling(-3.5, -1)
+    @test 3 == XLFunctions.ceiling(2.5, 1)
+    @test -3 == XLFunctions.ceiling(-2.6, -0.5)
+    @test 3 == XLFunctions.ceiling(2.6, 0.5)
+    @test 4 == XLFunctions.ceiling(3.5, 2)
+    @test -2 == XLFunctions.ceiling(-3.5, 2)
+    @test 100 == XLFunctions.ceiling(100, 10)
+    @test -100 == XLFunctions.ceiling(-100, 10)
+    @test 0.1 == XLFunctions.ceiling(0.001, 0.1)
+    @test 0.05 == XLFunctions.ceiling(0.001, 0.05)
+end
+
 @testitem "ceiling.math" begin
     @test 11 == ceiling.math(10.5, 1)
     @test 10.5 == ceiling.math(10.1, 0.5)
@@ -146,6 +186,61 @@ end
     @test -100 == ceiling.math(-100, 100, 0)
     @test -100 == ceiling.math(-100, 100, 1)
     @test 11 == ceiling.math(10.5)
+end
+
+@testitem "floor" begin
+    # Excel should be ashamed
+    @test_throws ArgumentError XLFunctions.floor(12.5, -2.5)
+    @test_throws ArgumentError XLFunctions.floor(15, 0)
+    @test_throws ArgumentError XLFunctions.floor(5, -1)
+    @test_throws ArgumentError XLFunctions.floor(5.5, -1.1)
+
+    @test 10 == XLFunctions.floor(10.5, 1)
+    @test 10 == XLFunctions.floor(10.1, 0.5)
+    @test -6 == XLFunctions.floor(-5.5, 2)
+    @test 12.2 ≈ XLFunctions.floor(12.25, 0.1)
+    @test 10 == XLFunctions.floor(12, 5)
+    @test -15 == XLFunctions.floor(-12, 5)
+    @test -10 == XLFunctions.floor(-12, -5)
+
+    @test 7.8 ≈ XLFunctions.floor(7.8, 0.2)
+    @test 0 == XLFunctions.floor(0, 10)
+    @test -3 == XLFunctions.floor(-2, 3)
+
+    @test 123.456 == XLFunctions.floor(123.456, 0.001)
+    @test 99.99 ≈ XLFunctions.floor(99.99, 0.01)
+    @test 99 == XLFunctions.floor(99, 33)
+    @test 100 == XLFunctions.floor(100, 100)
+end
+
+@testitem "floor.math" begin
+    @test 10 == XLFunctions.floor.math(10.5, 1)
+    @test 10 == XLFunctions.floor.math(10.1, 0.5)
+    @test -4 == XLFunctions.floor.math(-5.5, 2, 1)
+    @test -6 == XLFunctions.floor.math(-5.5, 2)
+    @test 12.2 ≈ XLFunctions.floor.math(12.25, 0.1)
+    @test 10 == XLFunctions.floor.math(12, 5)
+    @test -10 == XLFunctions.floor.math(-12, 5, 1)
+    @test -15 == XLFunctions.floor.math(-12, -5)
+    @test 12.5 == XLFunctions.floor.math(12.5, -2.5, 0)
+    @test 0 == XLFunctions.floor.math(15, 0)
+    @test 7.8 ≈ XLFunctions.floor.math(7.8, 0.2)
+    @test -7.8 ≈ XLFunctions.floor.math(-7.8, 0.2, 1)
+    @test 0 == XLFunctions.floor.math(0, 10)
+    @test 0 == XLFunctions.floor.math(-2, 3, 1)
+    @test -2.5 == XLFunctions.floor.math(-2.5, 0.5, 1)
+    @test 5 == XLFunctions.floor.math(5, -1)
+    @test 5.5 == XLFunctions.floor.math(5.5, -1.1)
+    @test -5.5 == XLFunctions.floor.math(-5.5, -1.1, 1)
+    @test 123.456 == XLFunctions.floor.math(123.456, 0.001)
+    @test -123.456 == XLFunctions.floor.math(-123.456, 0.001, 1)
+    @test 99.99 ≈ XLFunctions.floor.math(99.99, 0.01)
+    @test 99 == XLFunctions.floor.math(99, 33)
+    @test -99 == XLFunctions.floor.math(-99, 33, 1)
+    @test 100 == XLFunctions.floor.math(100, 100)
+    @test -100 == XLFunctions.floor.math(-100, 100, 0)
+    @test -100 == XLFunctions.floor.math(-100, 100, 1)
+    @test 10 == XLFunctions.floor.math(10.5)
 end
 
 @testitem "dateif" begin
