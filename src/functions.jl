@@ -71,6 +71,50 @@ function concatenate(args...)
     return string(_format.(args)...)
 end
 
+_text_short_circuit_patterns = [
+    Regex("^(yyyy)(mm)(dd)\$", "i"),
+    Regex("^(yyyy)([^a-zA-Z])(mm)([^a-zA-Z])(dd)\$", "i"),
+    Regex(
+        "^(yyyy)([^a-zA-Z])(mm)([^a-zA-Z])(dd)([^a-zA-Z]{1,2})(hh)([^a-zA-Z])(mm)([^a-zA-Z])(ss)\$",
+        "i",
+    ),
+]
+
+function _text_short_circuit(x::Union{Number,XLDate}, format_text::String)
+    for pattern in _text_short_circuit_patterns
+        m = match(pattern, format_text)
+        if m !== nothing
+            # Convert x to DateTime only if a match is found
+            datetime = DateTime(XLDate(x)) # Ensure this conversion is appropriate for your data
+
+            y = lpad(Dates.year(datetime), 4, '0')
+            mon = lpad(Dates.month(datetime), 2, '0')
+            d = lpad(Dates.day(datetime), 2, '0')
+
+            # Construct the string based on the matched pattern
+            if pattern == _text_short_circuit_patterns[1]
+                return string(y, mon, d)
+            elseif pattern == _text_short_circuit_patterns[2]
+                sep1 = m[2]
+                sep2 = m[4]
+                return string(y, sep1, mon, sep2, d)
+            elseif pattern == _text_short_circuit_patterns[3]
+                sep1 = m[2]
+                sep2 = m[4]
+                sep3 = m[6]
+                sep4 = m[8]
+                sep5 = m[10]
+                h = lpad(Dates.hour(datetime), 2, '0')
+                min = lpad(Dates.minute(datetime), 2, '0')
+                sec = lpad(Dates.second(datetime), 2, '0')
+                return string(y, sep1, mon, sep2, d, sep3, h, sep4, min, sep5, sec)
+            end
+        end
+    end
+
+    return nothing
+end
+
 function text(x::Union{Number,XLDate}, format_text)
     # m - e.g. 2 (or minute if after "h"/"hh" or immediately before "s"/"ss")
     # mm - e.g. 02 
@@ -89,6 +133,11 @@ function text(x::Union{Number,XLDate}, format_text)
 
     #yy - two-digit year.
     #yyyy - four-digit year.
+
+    quick = _text_short_circuit(x, format_text)
+    if quick !== nothing
+        return quick
+    end
 
     datedict = Dict(
         "m" => Dates.month,
