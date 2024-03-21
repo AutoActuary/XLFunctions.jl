@@ -1,6 +1,8 @@
 using Dates: Dates, DateTime, length
 import Base: repr, show, +, *, -, /, ^, <, >, ==, isless, convert, promote_rule
 
+const _datetime_xl_epoch = Dates.DateTime(1899, 12, 30)
+
 struct XLDate{T<:Real}
     val::T
     function XLDate(number::T) where {T<:Real}
@@ -13,7 +15,7 @@ struct XLDate{T<:Real}
 end
 
 XLDate(date::DateTime) = begin
-    number = Dates.value(date - Dates.DateTime(1899, 12, 30))
+    number = Dates.value(date - _datetime_xl_epoch)
     number = number / 86400000
     XLDate(number)
 end
@@ -76,7 +78,7 @@ DateTime(xldate::XLDate) = xlnum_to_datetime(xldate.val)
 
 function xlnum_to_datetime(number::Real)
     decimal, whole = modf(number)
-    return Dates.DateTime(1899, 12, 30) +
+    return _datetime_xl_epoch +
            Dates.Day(whole) +
            Dates.Millisecond((Base.floor(decimal * 86400000)))
 end

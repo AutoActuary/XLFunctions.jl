@@ -75,46 +75,60 @@ _text_short_circuit_patterns = [
 ]
 
 function _text_short_circuit(x::Union{Number,XLDate}, format_text::String)
+    function yyyy_mm_dd()
+        datetime = DateTime(XLDate(x))
+
+        yyyy = lpad(Dates.year(datetime), 4, '0')
+        mm = lpad(Dates.month(datetime), 2, '0')
+        dd = lpad(Dates.day(datetime), 2, '0')
+        return yyyy, mm, dd
+    end
+
+    function yyyy_mm_dd_hh_mm_ss()
+        datetime = DateTime(XLDate(x))
+
+        yyyy = lpad(Dates.year(datetime), 4, '0')
+        mm = lpad(Dates.month(datetime), 2, '0')
+        dd = lpad(Dates.day(datetime), 2, '0')
+        hh = lpad(Dates.hour(datetime), 2, '0')
+        mm = lpad(Dates.minute(datetime), 2, '0')
+        ss = lpad(Dates.second(datetime), 2, '0')
+        return yyyy, mm, dd, hh, mm, ss
+    end
+
     lc_format_text = lowercase(format_text)
     if lc_format_text == "yyyymmdd"
-        datetime = DateTime(XLDate(x))
-        formatted_date = Dates.format(datetime, "%Y%m%d")  # Julia doesn't use %Y%m%d for this format
+        yyyy, mm, dd = yyyy_mm_dd()
+        return "$yyyy$mm$dd"
     elseif lc_format_text == "yyyy-mm-dd"
-        datetime = DateTime(XLDate(x))
-        formatted_date = Dates.format(datetime, "%Y-%m-%d")
+        yyyy, mm, dd = yyyy_mm_dd()
+        return "$yyyy-$mm-$dd"
     elseif lc_format_text == "yyyy/mm/dd"
-        datetime = DateTime(XLDate(x))
-        formatted_date = Dates.format(datetime, "%Y/%m/%d")
+        yyyy, mm, dd = yyyy_mm_dd()
+        return "$yyyy/$mm/$dd"
     elseif lc_format_text == "yyyy-mm-dd hh:mm:ss"
-        datetime = DateTime(XLDate(x))
-        formatted_date = Dates.format(datetime, "%Y-%m-%d %H:%M:%S")
+        yyyy, mm, dd, hh, mm, ss = yyyy_mm_dd_hh_mm_ss()
+        return "$yyyy-$mm-$dd $hh:$mm:$ss"
     end
 
     # If not any of these, try a more expensive approach for similar ones
     for pattern in _text_short_circuit_patterns
         m = match(pattern, format_text)
         if m !== nothing
-            # Convert x to DateTime only if a match is found
-            datetime = DateTime(XLDate(x)) # Ensure this conversion is appropriate for your data
-
-            y = lpad(Dates.year(datetime), 4, '0')
-            mon = lpad(Dates.month(datetime), 2, '0')
-            d = lpad(Dates.day(datetime), 2, '0')
-
             if pattern == _text_short_circuit_patterns[1]
+                yyyy, mm, dd = yyyy_mm_dd()
                 sep1 = m[2]
                 sep2 = m[4]
-                return string(y, sep1, mon, sep2, d)
+                return string(yyyy, sep1, mm, sep2, dd)
+
             elseif pattern == _text_short_circuit_patterns[2]
+                yyyy, mm, dd, hh, mm, ss = yyyy_mm_dd_hh_mm_ss()
                 sep1 = m[2]
                 sep2 = m[4]
                 sep3 = m[6]
                 sep4 = m[8]
                 sep5 = m[10]
-                h = lpad(Dates.hour(datetime), 2, '0')
-                min = lpad(Dates.minute(datetime), 2, '0')
-                sec = lpad(Dates.second(datetime), 2, '0')
-                return string(y, sep1, mon, sep2, d, sep3, h, sep4, min, sep5, sec)
+                return string(yyyy, sep1, mm, sep2, dd, sep3, hh, sep4, mm, sep5, ss)
             end
         end
     end
@@ -141,9 +155,8 @@ function text(x::Union{Number,XLDate}, format_text)
     #yy - two-digit year.
     #yyyy - four-digit year.
 
-    quick = _text_short_circuit(x, format_text)
-    if quick !== nothing
-        return quick
+    if (tsc = _text_short_circuit(x, format_text)) !== nothing
+        return tsc
     end
 
     datedict = Dict(

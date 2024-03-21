@@ -118,6 +118,7 @@ using XLFunctions
     @test_throws MethodError "2019-01-01" + 1
 end
 
+
 @testitem "ceiling" begin
     # Excel should be ashamed
     @test_throws ArgumentError XLFunctions.ceiling(12.5, -2.5)
