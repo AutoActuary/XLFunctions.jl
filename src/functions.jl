@@ -52,7 +52,7 @@ function concat(x::AbstractFloat)
 end
 
 function concat(x::Union{AbstractArray,Tuple})
-    return join((concat(i) for i in x), "")
+    return string((concat(i) for i in x)...)
 end
 
 function concat(x)
