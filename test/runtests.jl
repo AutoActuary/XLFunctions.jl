@@ -339,6 +339,23 @@ end
         @test text(num, "yyyyMMdd") == result
     end
 
+    results = [
+        "1900-03-04",
+        "1901-12-19",
+        "1902-01-18",
+        "1900-10-10",
+        "1901-03-22",
+        "1900-03-29",
+        "1902-04-29",
+        "1901-03-26",
+        "1901-08-03",
+        "1901-10-12",
+        "1900-12-09",
+    ]
+    for (num, result) in zip(nums, results)
+        @test text(num, "yyyy-mm-dd") == result
+    end
+
     @test concatenate("Hello", " ", "World", " ", XLDate(40000)) == "Hello World 40000"
 end
 

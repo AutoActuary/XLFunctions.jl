@@ -67,15 +67,30 @@ end
 concatenate = concat
 
 _text_short_circuit_patterns = [
-    Regex("^(yyyy)(mm)(dd)\$", "i"),
-    Regex("^(yyyy)([^a-zA-Z])(mm)([^a-zA-Z])(dd)\$", "i"),
+    Regex(raw"^(yyyy)([^a-zA-Z])(mm)([^a-zA-Z])(dd)$", "i"),
     Regex(
-        "^(yyyy)([^a-zA-Z])(mm)([^a-zA-Z])(dd)([^a-zA-Z]{1,2})(hh)([^a-zA-Z])(mm)([^a-zA-Z])(ss)\$",
+        raw"^(yyyy)([^a-zA-Z])(mm)([^a-zA-Z])(dd)([^a-zA-Z]{1,2})(hh)([^a-zA-Z])(mm)([^a-zA-Z])(ss)$",
         "i",
     ),
 ]
 
 function _text_short_circuit(x::Union{Number,XLDate}, format_text::String)
+    lc_format_text = lowercase(format_text)
+    if lc_format_text == "yyyymmdd"
+        datetime = DateTime(XLDate(x))
+        formatted_date = Dates.format(datetime, "%Y%m%d")  # Julia doesn't use %Y%m%d for this format
+    elseif lc_format_text == "yyyy-mm-dd"
+        datetime = DateTime(XLDate(x))
+        formatted_date = Dates.format(datetime, "%Y-%m-%d")
+    elseif lc_format_text == "yyyy/mm/dd"
+        datetime = DateTime(XLDate(x))
+        formatted_date = Dates.format(datetime, "%Y/%m/%d")
+    elseif lc_format_text == "yyyy-mm-dd hh:mm:ss"
+        datetime = DateTime(XLDate(x))
+        formatted_date = Dates.format(datetime, "%Y-%m-%d %H:%M:%S")
+    end
+
+    # If not any of these, try a more expensive approach for similar ones
     for pattern in _text_short_circuit_patterns
         m = match(pattern, format_text)
         if m !== nothing
@@ -86,14 +101,11 @@ function _text_short_circuit(x::Union{Number,XLDate}, format_text::String)
             mon = lpad(Dates.month(datetime), 2, '0')
             d = lpad(Dates.day(datetime), 2, '0')
 
-            # Construct the string based on the matched pattern
             if pattern == _text_short_circuit_patterns[1]
-                return string(y, mon, d)
-            elseif pattern == _text_short_circuit_patterns[2]
                 sep1 = m[2]
                 sep2 = m[4]
                 return string(y, sep1, mon, sep2, d)
-            elseif pattern == _text_short_circuit_patterns[3]
+            elseif pattern == _text_short_circuit_patterns[2]
                 sep1 = m[2]
                 sep2 = m[4]
                 sep3 = m[6]
