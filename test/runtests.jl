@@ -1,5 +1,22 @@
 using XLFunctions
 
+@testitem "xlserial" begin
+    using Dates
+    lhs = []
+    rhs = []
+    for xlserial in 70:500000
+        push!(lhs, XLFunctions._year_month_day_of_xlserial(xlserial))
+
+        datetime_result = XLFunctions.xlnum_to_datetime(xlserial)
+        year, month, day = Dates.year(datetime_result),
+        Dates.month(datetime_result),
+        Dates.day(datetime_result)
+        push!(rhs, (year, month, day))
+    end
+
+    @test lhs == rhs
+end
+
 @testitem "xldate" begin
     using Dates: Dates, DateTime
 
@@ -117,7 +134,6 @@ using XLFunctions
     @test_throws MethodError "2019-01-01" + "2022-07-31"
     @test_throws MethodError "2019-01-01" + 1
 end
-
 
 @testitem "ceiling" begin
     # Excel should be ashamed

@@ -76,11 +76,17 @@ _text_short_circuit_patterns = [
 
 function _text_short_circuit(x::Union{Number,XLDate}, format_text::String)
     function yyyy_mm_dd()
-        datetime = DateTime(XLDate(x))
+        yyyy, mm, dd = _year_month_day_of_xlserial(
+            if x isa XLDate
+                x.num
+            else
+                x
+            end,
+        )
 
-        yyyy = lpad(Dates.year(datetime), 4, '0')
-        mm = lpad(Dates.month(datetime), 2, '0')
-        dd = lpad(Dates.day(datetime), 2, '0')
+        yyyy = lpad(yyyy, 4, '0')
+        mm = lpad(mm, 2, '0')
+        dd = lpad(dd, 2, '0')
         return yyyy, mm, dd
     end
 

@@ -29,6 +29,7 @@ function_names = [
     :yearfrac,
 ]
 
+include("xldates_xlserial.jl")
 include("xldates.jl")
 include("functions.jl")
 include("functions_with_dots.jl")

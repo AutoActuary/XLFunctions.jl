@@ -138,21 +138,37 @@ end
 Excel compatable date function
 "
 function date(year, month, day)
-    year, month, day = Base.floor(year), Base.floor(month), Base.floor(day)
+    year, month, day = Base.floor(Int, year), Base.floor(Int, month), Base.floor(Int, day)
 
-    # What the heck Excel:
-    year = if year < 1900
-        year + 1900
-    else
-        year
+    # What the heck Excel
+    if year < 1900
+        year += 1900
     end
 
-    return XLDate(Dates.DateTime(year, month, day))
+    xlserial = _year_to_xlserial(year) - 1 + if _is_leap(year)
+        _months_start_leap[month] - 1
+    else
+        _months_start_regular[month] - 1
+    end + day
+
+    return XLDate(xlserial)
 end
+
+year(x::Real) = _year_of_xlserial(x)
+
+year(x::XLDate) = _year_of_xlserial(x.val)
 
 year(x) = Dates.year(Dates.DateTime(XLDate(x)))
 
+month(x::Real) = _year_month_day_of_xlserial(x)[2]
+
+month(x::XLDate) = _year_month_day_of_xlserial(x.val)[2]
+
 month(x) = Dates.month(Dates.DateTime(XLDate(x)))
+
+day(x::Real) = _year_month_day_of_xlserial(x)[3]
+
+day(x::XLDate) = _year_month_day_of_xlserial(x.val)[3]
 
 day(x) = Dates.day(Dates.DateTime(XLDate(x)))
 
