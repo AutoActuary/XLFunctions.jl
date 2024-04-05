@@ -85,7 +85,7 @@ end
 
 # Conversions
 function convert(::Type{XLDate{T₁}}, n::XLDate{T₂}) where {T₁} where {T₂}
-    return DateTime(convert(T₁, n.val))
+    return XLDate(convert(T₁, n.val))
 end
 convert(::Type{DateTime}, n::XLDate) = DateTime(n)
 convert(::Type{XLDate}, n::DateTime) = XLDate(n)
