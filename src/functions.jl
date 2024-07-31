@@ -78,7 +78,7 @@ function _text_short_circuit(x::Union{Number,XLDate}, format_text::String)
     function yyyy_mm_dd()
         yyyy, mm, dd = _year_month_day_of_xlserial(
             if x isa XLDate
-                x.num
+                x.val
             else
                 x
             end,
