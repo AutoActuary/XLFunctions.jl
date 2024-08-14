@@ -367,3 +367,13 @@ function substitute(
     result *= text[last_pos:end]
     return result
 end
+
+function trim(text::String)::String
+    text = strip(text)
+    text = replace(text, r"\s+" => " ")
+    return text
+end
+
+function trim(nontext)::String
+    return trim(concat(nontext))
+end

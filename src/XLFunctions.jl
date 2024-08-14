@@ -24,6 +24,7 @@ function_names = [
     :substitute,
     :sum,
     :text,
+    :trim,
     :upper,
     :year,
     :yearfrac,
