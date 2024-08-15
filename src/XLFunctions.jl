@@ -35,6 +35,7 @@ include("xldates_xlserial.jl")
 include("xldates.jl")
 include("functions.jl")
 include("functions_with_dots.jl")
+include("functions_rate.jl")
 include("boolcast.jl")
 
 export XLDate
