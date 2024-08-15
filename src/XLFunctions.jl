@@ -17,6 +17,7 @@ function_names = [
     :lower,
     :mid,
     :month,
+    :rate,
     :right,
     :round,
     :rounddown,
